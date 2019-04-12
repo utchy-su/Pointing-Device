@@ -218,6 +218,6 @@ class Drawer:
 
 if __name__ == '__main__':
     data_path_mover = 'N/A'
-    data_path = 'C:/Users/socre/Google ドライブ/Pdev_results/experiment/results_data_3/data_name.xlsx'
+    data_path = 'PATH'
     test = Drawer(data_path, data_path_mover)
     test.main()

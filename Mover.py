@@ -28,15 +28,7 @@ class Function:
         # open the serial port
 
         users_preset = {'PERSON': {'right_limit': 40, 'left_limit': 40, 'sigmoid_const': 0.25, 'forward_limit': 40,
-                                   'backward_limit': 40},
-                        'TANAKA': {'right_limit': 30, 'left_limit': 30, 'sigmoid_const': 0.25, 'forward_limit': 40,
-                                   'backward_limit': 40},
-                        'KITAMURA': {'right_limit': 60, 'left_limit': 40, 'sigmoid_const': 0.25, 'forward_limit': 30,
-                                     'backward_limit': 50},
-                        'MIYAMOTO': {'right_limit': 50, 'left_limit': 30, 'sigmoid_const': 0.25, 'forward_limit': 40,
-                                     'backward_limit': 40},
-                        'SUDO': {'right_limit': 40, 'left_limit': 35, 'sigmoid_const': 0.25, 'forward_limit': 50,
-                                 'backward_limit': 50}
+                                   'backward_limit': 40}
                         }
 
         for key, value in users_preset.items():
@@ -152,14 +144,6 @@ class Function:
         return int(x_now + x_move), int(y_now + y_move), x_now, y_now
 
     def __mover_discrete(self, x_input, y_input, kx, ky):
-        """
-
-        The tilt angle for horizontal move is followed by the vertical anguler change.
-        i.e. can't perfectly tilt the head to horizontal direction              without any move to the vertical direction.
-        Therefore in this section, caliburation for horizontal move is added.
-        Refer to the excel datas for more information.
-
-        """
         x_now, y_now = win32api.GetCursorPos()
 
         if -self.left_limit <= x_input < -self.left_limit * 2/3:
@@ -303,7 +287,7 @@ class Function:
 
 
 if __name__ == '__main__':
-    data_path = 'C:/Users/socre/Google ドライブ/Pdev_results/experiment/results_data_3/data_name.xlsx'
+    data_path = 'PATH'
 
     test = Function(mode='linear')
     test.main(data_path, 0)

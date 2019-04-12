@@ -157,7 +157,7 @@ class Drawer_continuous:
             i += 1
 
 if __name__ == '__main__':
-    now = 'other/KITAMURA/' + str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')) + '.xlsx'
-    fig_path = 'other/KITAMURA/' + str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')) + '.png'
+    now = 'other/PERSON/' + str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')) + '.xlsx'
+    fig_path = 'other/PERSON/' + str(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')) + '.png'
     test = Drawer_continuous(now, fig_path)
     test.main()

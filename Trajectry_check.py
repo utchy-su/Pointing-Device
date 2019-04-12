@@ -152,6 +152,6 @@ class Window:
 
 
 if __name__ == '__main__':
-    path = 'C:/Users/socre/Google ドライブ/Pdev_results/experiment/results_data_2/Ishii/neck/attempt2_1.xlsx'
+    path = 'PATH'
     test = Window(path)
     test.main()
