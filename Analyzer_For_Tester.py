@@ -4,6 +4,8 @@ Created on Mon Jun 11 14:02:26 2018
 
 @author: smart
 """
+# hello
+
 
 import openpyxl as px
 import math
@@ -383,7 +385,7 @@ class Analyzer:
         """
         # the below statement should be activated when file names are like 'attempt1_1'
         # then automatically this program examines TP
-        
+
         for i in range(5):
             for j in range(5):
                 order = str(i+1)+'_'+str(j+1)
@@ -524,4 +526,3 @@ if __name__ == '__main__':
         test = Analyzer(data_path, data_path_for_summary)
         test.main()
     """
-
