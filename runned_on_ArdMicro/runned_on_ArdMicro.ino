@@ -18,9 +18,10 @@ float acc_angX, acc_angY, acc_angZ; //calculated angles
 unsigned long dt;
 int s; // number of times the user pushed the switch 1
 int f; // number of times the user pushed the switch 2
-#define RAD_TO_DEG 180/PI
 
-LiquidCrystal lcd = LiquidCrystal(6, 7, 8, 9, 10, 11, 12);
+#define RAD_TO_DEG 180/PI
+#define LED1 10
+#define LED2 12
 
 void setup() {
   // put your setup code here, to run once:
@@ -46,16 +47,17 @@ void setup() {
   Wire.write(0x1A);
   Wire.write(0x05);
   Wire.endTransmission();
+
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  digitalWrite(LED1, HIGH);
+  digitalWrite(LED2, HIGH);
+  delay(1000);
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
   
   Mouse.begin();
   Serial.begin(19200);
-
-  lcd.begin(16, 2);
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("WELCOME");
-  delay(3000);
-  lcd.clear();
 }
 
 void loop() {
@@ -82,6 +84,7 @@ void loop() {
     if (s>2) s = 0;
     delay(100);
     while(digitalRead(4)==LOW){}
+    twinkle(1);
     }
 
   if (digitalRead(5)==LOW){
@@ -89,60 +92,68 @@ void loop() {
     if (f>2) f=0;
     delay(100);
     while(digitalRead(5)==LOW){}
+    twinkle(2);
     }
   distinguisher();
   sensitivity_changer();
-  lcd.clear();
   Mouse.move(move_x, move_y, 0);
-
-
   dt = (double) (millis() - t)/1000.0;
+}
+
+//1: distinguisher
+//2: sensitivity_changer
+void twinkle(int func_name){
+  if (func_name==1){
+    int n = LED1; //light LED1 on
+    int rep_num =  s;
+    Serial.println(n);
+    for (int i=0; i<=s; i++){
+      digitalWrite(n, HIGH);
+      delay(100);
+      digitalWrite(n, LOW);
+      delay(100);
+    }
+  }
+  
+  if (func_name==2){
+    int n = LED2;
+    int rep_num = f;
+    Serial.println(n);
+    for (int i=0; i<=f; i++){
+      digitalWrite(n, HIGH);
+      delay(100);
+      digitalWrite(n, LOW);
+      delay(100);
+    }
+  }
 }
 
 void distinguisher(){
   if (s==0){ //OFF MODE
     move_x = 0;
     move_y = 0;
-    Serial.println("OFF");
-    lcd.setCursor(0,0);
-    lcd.print("MODE: OFF");
-    delay(5);
     }
   if (s==1){ //Linear Mode
     move_x = (int) (kx * acc_angY);
     move_y = (int) (ky * acc_angX);
-    Serial.println("linear mode");
-    lcd.setCursor(0,0);
-    lcd.print("MODE: LINEAR");
-    delay(5);
     }
   if (s==2){ //non-linear mode
     move_x = (int) (15 * tanh(acc_angY / 40));
     move_y = (int) (15 * tanh(acc_angX / 40));
-    Serial.print("tanh mode");
-    lcd.setCursor(0, 0);
-    lcd.print("MODE: TANH");
     }
-    
 }
 
 void sensitivity_changer(){
   if (f==0){
     kx = 0.1; ky = 0.1;
-    lcd.setCursor(0, 1);
-    lcd.print("GAIN: LOW");
     delay(5);
   }
   if (f==1){
     kx = 0.2; ky=0.2;
-    lcd.setCursor(0,1);
-    lcd.print("GAIN: MID");
     delay(5);
   }
   if (f==2){
     kx = 0.3; ky = 0.3;
-    lcd.setCursor(0,1);
-    lcd.print("GAIN: HIGH");
     delay(5);
   }
 }
