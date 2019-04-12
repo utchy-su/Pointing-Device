@@ -12,26 +12,6 @@ import numpy as np
 import math
 import openpyxl as px
 
-'''
-to be implemented
-/TRE counter DONE
-/Task across crossing counter DONE
-/Movement direction change counter  DONE
-/Orthogonal direction change counter
-!!!!!!!!!!!!!!!!!!!!!!!!!
-/Movement variability NOT YET
-->identifier of sign is not implemented yet
-!!!!!!!!!!!!!!!!!!!!!!!!!
-/Movement error DONE
-/Movement offset
-
-/Route distinguisher
-->record the route independently and explicitly write the route
-/Original Route
-
-'''
-
-
 class Drawer:
 
     def __init__(self, data_path, data_path_mover):
@@ -83,12 +63,6 @@ class Drawer:
         return click_count, detect
 
     def __area_distinguisher(self):
-
-        '''speed distinguisher
-        not perfectly implemented yet
-        the way using time that a poninter stay in the cicle is affecting the value of TP
-        '''
-
         try:
             x_vel = (float(self.x[-1]) - float(self.x[-2]))/(float(self.time[-1])-float(self.time[-2]))*1000
             y_vel = (float(self.y[-1]) - float(self.y[-2]))/(float(self.time[-1])-float(self.time[-2]))*1000

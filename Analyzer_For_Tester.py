@@ -36,9 +36,9 @@ class Analyzer:
 
         return np.array(mat)
 
-    def __TRE_counter(self,mat):
+    def __TRE_counter(self, mat):
         TRE = []
-        for i in range(1,15):
+        for i in range(1, 15):
             tgt_num = [var for var in mat[0] if isinstance(var, str)==False]
             x_dst = 450 + 200*np.cos(math.pi*tgt_num[i]/8)
             y_dst = 450 + 200*np.sin(math.pi*tgt_num[i]/8)
