@@ -20,8 +20,12 @@ int s; // number of times the user pushed the switch 1
 int f; // number of times the user pushed the switch 2
 
 #define RAD_TO_DEG 180/PI
-#define LED1 10
-#define LED2 12
+
+#define IndicateMode 9
+
+#define IndicateLow 10
+#define IndicateMid 11
+#define IndicateHigh 12
 
 void setup() {
   // put your setup code here, to run once:
@@ -48,13 +52,19 @@ void setup() {
   Wire.write(0x05);
   Wire.endTransmission();
 
-  pinMode(LED1, OUTPUT);
-  pinMode(LED2, OUTPUT);
-  digitalWrite(LED1, HIGH);
-  digitalWrite(LED2, HIGH);
+  pinMode(IndicateMode, OUTPUT);
+  pinMode(IndicateLow, OUTPUT);
+  pinMode(IndicateMid, OUTPUT);
+  pinMode(IndicateHigh, OUTPUT);
+  digitalWrite(IndicateMode, HIGH);
+  digitalWrite(IndicateLow, HIGH);
+  digitalWrite(IndicateMid, HIGH);
+  digitalWrite(IndicateHigh, HIGH);
   delay(1000);
-  digitalWrite(LED1, LOW);
-  digitalWrite(LED2, LOW);
+  digitalWrite(IndicateMode, LOW);
+  digitalWrite(IndicateLow, LOW);
+  digitalWrite(IndicateMid, LOW);
+  digitalWrite(IndicateHigh, LOW);
   
   Mouse.begin();
   Serial.begin(19200);
@@ -104,7 +114,7 @@ void loop() {
 //2: sensitivity_changer
 void twinkle(int func_name){
   if (func_name==1){
-    int n = LED1; //light LED1 on
+    int n = IndicateMode; //light LED1 on
     int rep_num =  s;
     Serial.println(n);
     for (int i=0; i<=s; i++){
@@ -116,14 +126,21 @@ void twinkle(int func_name){
   }
   
   if (func_name==2){
-    int n = LED2;
     int rep_num = f;
-    Serial.println(n);
-    for (int i=0; i<=f; i++){
-      digitalWrite(n, HIGH);
-      delay(100);
-      digitalWrite(n, LOW);
-      delay(100);
+    if (f==0){
+      digitalWrite(IndicateLow, HIGH);
+      delay(1000);
+      digitalWrite(IndicateLow, LOW);
+    }
+    if (f==1){
+      digitalWrite(IndicateMid, HIGH);
+      delay(1000);
+      digitalWrite(IndicateMid, LOW);
+    }
+    if (f==2){
+      digitalWrite(IndicateHigh, HIGH);
+      delay(1000);
+      digitalWrite(IndicateHigh, LOW);
     }
   }
 }
