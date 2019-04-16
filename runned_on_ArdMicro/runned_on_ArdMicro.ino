@@ -86,8 +86,10 @@ void loop() {
   acc_y = ayRaw / 16384.0;
   acc_z = azRaw / 16384.0;
 
-  acc_angX = atan2(acc_x, acc_z) * 360 / 2.0 / PI;
-  acc_angY = atan2(acc_y, acc_z) * 360 / 2.0 / PI;
+  acc_angX = atan2(acc_y, acc_x) * 360 / 2.0 / PI;
+  Serial.print(acc_angX); Serial.print(",");
+  acc_angY = atan2(acc_z, acc_x) * 360 / 2.0 / PI;
+  Serial.println(acc_angY);
 
   if (digitalRead(4)==LOW){
     s+=1;
@@ -152,11 +154,11 @@ void distinguisher(){
     }
   if (s==1){ //Linear Mode
     move_x = (int) (kx * acc_angY);
-    move_y = (int) (ky * acc_angX);
+    move_y = (int) (-ky * acc_angX);
     }
   if (s==2){ //non-linear mode
-    move_x = (int) (15 * tanh(acc_angY / 40));
-    move_y = (int) (15 * tanh(acc_angX / 40));
+    move_x = (int) (10*tanh(acc_angY / 40));
+    move_y = (int) (-10*tanh(acc_angX / 40));
     }
 }
 
