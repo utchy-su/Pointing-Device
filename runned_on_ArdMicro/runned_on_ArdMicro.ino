@@ -18,8 +18,10 @@ float acc_angX, acc_angY, acc_angZ; //calculated angles
 unsigned long dt; //duration for a single loop
 int s; // number of times the user pushed the switch 1
 int f; // number of times the user pushed the switch 2
+const float lmg = 0.12 * 66 * 9.6 / 100 * 9.81; //estimated rigidity of the human head
 
 #define RAD_TO_DEG 180/PI
+#define DEG_TO_RAD PI/180
 
 #define IndicateMode 9
 
@@ -88,9 +90,9 @@ void loop() {
   acc_z = azRaw / 16384.0;
 
   acc_angX = atan2(acc_y, acc_x) * 360 / 2.0 / PI; //calculatete the tilt angle about X-axis
-  Serial.print(acc_angX); Serial.print(",");
+  //Serial.print(acc_angX); Serial.print(",");
   acc_angY = atan2(acc_z, acc_x) * 360 / 2.0 / PI; //calculate the tilt angle about Y-axis
-  Serial.println(acc_angY);
+  //Serial.println(acc_angY);
 
   if (digitalRead(4)==LOW){ //if the left switch is pushed then s+=1
     s+=1;
@@ -110,7 +112,9 @@ void loop() {
   distinguisher();
   sensitivity_changer();
   Mouse.move(move_x, move_y, 0); // Move the cursor according to the tilt angles
-  dt = (double) (millis() - t)/1000.0;
+  dt = (double) (millis() - t);
+
+  if (dt < 20) delay(20 - dt);
 }
 
 //1: distinguisher
@@ -158,22 +162,23 @@ void distinguisher(){
     move_y = (int) (-ky * acc_angX);
     }
   if (s==2){ //non-linear mode
-    move_x = (int) (10*tanh(acc_angY / 40));
-    move_y = (int) (-10*tanh(acc_angX / 40));
+    move_x = (int) (kx * (1 - sin(acc_angY*DEG_TO_RAD)/(acc_angY*DEG_TO_RAD)));
+    move_y = (int) (ky * (1 - sin(acc_angX*DEG_TO_RAD)/(acc_angX*DEG_TO_RAD)));
+    Serial.println(1 - sin(acc_angX*DEG_TO_RAD)/abs(acc_angX*DEG_TO_RAD));
     }
 }
 
 void sensitivity_changer(){
   if (f==0){
-    kx = 0.1; ky = 0.1;
+    kx = 15; ky = 15;
     delay(5);
   }
   if (f==1){
-    kx = 0.2; ky=0.2;
+    kx = 20; ky=20;
     delay(5);
   }
   if (f==2){
-    kx = 0.3; ky = 0.3;
+    kx = 25; ky = 25;
     delay(5);
   }
 }
