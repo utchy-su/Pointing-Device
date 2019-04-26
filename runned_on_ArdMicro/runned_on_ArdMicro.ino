@@ -2,9 +2,6 @@
 #include <Wire.h>
 #include <LiquidCrystal.h>
 
-#define tx 1
-#define rx 0
-
 int16_t axRaw, ayRaw, azRaw, gxRaw, gyRaw, gzRaw, temperature; //raw data given by the sensor
 unsigned long t; //the time since the beginning of the loop() function
 float kx = 0.2; //gain for x
@@ -12,13 +9,11 @@ float ky = 0.2; //gain for y
 char mode = 0; //mode of control type
 int move_x; //relative distance to move in X-axis
 int move_y; //relative distance to move in Y-axis
-float C = 80; // constant to normalize
 float acc_x, acc_y, acc_z; //raw data from the sensor
 float acc_angX, acc_angY, acc_angZ; //calculated angles
 unsigned long dt; //duration for a single loop
 int s; // number of times the user pushed the switch 1
 int f; // number of times the user pushed the switch 2
-const float lmg = 0.12 * 66 * 9.6 / 100 * 9.81; //estimated rigidity of the human head
 float Xoffset, Yoffset;
 
 #define RAD_TO_DEG 180/PI
@@ -211,16 +206,46 @@ void calibrate() {
 }
 
 void sensitivity_changer() {
-  if (f == 0) {
-    kx = 15; ky = 15;
-    delay(5);
-  }
-  if (f == 1) {
-    kx = 20; ky = 20;
-    delay(5);
-  }
-  if (f == 2) {
-    kx = 25; ky = 25;
-    delay(5);
+  switch (f){
+    case 0:
+      kx = 10; ky = 10;
+      delay(5);
+      break;
+    case 1:
+      kx = 20; ky = 20;
+      delay(5);
+      break;
+    case 2:
+      kx = 30; ky = 30;
+      delay(5);
+      break;
+    case 3:
+      kx = 40; ky = 40;
+      delay(5);
+      break;
+    case 4:
+      kx = 50; ky = 50;
+      delay(5);
+      break;
+    case 5:
+      kx = 60; ky = 60;
+      delay(5);
+      break;
+    case 6:
+      kx = 70; ky = 70;
+      delay(5);
+      break;
+    case 7:
+      kx = 80; ky = 80;
+      delay(5);
+      break;
+    case 8:
+      kx = 90; ky = 90;
+      delay(5);
+      break;
+    case 9:
+      kx = 100; ky = 100;
+      delay(5);
+      break;
   }
 }
