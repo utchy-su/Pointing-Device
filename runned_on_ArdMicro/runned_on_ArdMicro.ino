@@ -55,6 +55,10 @@ void setup() {
   Wire.write(0x05);
   Wire.endTransmission();
 
+  Mouse.begin();
+  Serial.begin(19200);
+  calibrate();
+
   //Initialize the all LED
   pinMode(IndicateMode, OUTPUT);
   pinMode(IndicateLow, OUTPUT);
@@ -69,10 +73,6 @@ void setup() {
   digitalWrite(IndicateLow, LOW);
   digitalWrite(IndicateMid, LOW);
   digitalWrite(IndicateHigh, LOW);
-
-  Mouse.begin();
-  Serial.begin(19200);
-  calibrate();
 }
 
 void loop() {
@@ -110,6 +110,7 @@ void loop() {
     delay(100);
     while (digitalRead(5) == LOW) {}
     twinkle(2);
+    calibrate();
   }
   distinguisher();
   sensitivity_changer();
@@ -180,11 +181,8 @@ void distinguisher() {
     } else if (-40 < Y && Y< 0) {
       move_y = (int) (ky * 100 / 8 * (1 - sin(Y * DEG_TO_RAD) / (Y * DEG_TO_RAD)));
     }
-
-    Serial.print(acc_angX - Xoffset); Serial.print(',');
-    Serial.print(acc_angY - Yoffset); Serial.print(',');
-    Serial.println(100 / 8 * (1 - sin(X * DEG_TO_RAD) / (X * DEG_TO_RAD)));
   }
+  Serial.print(X); Serial.print(';'); Serial.println(-Y);
 }
 
 void calibrate() {

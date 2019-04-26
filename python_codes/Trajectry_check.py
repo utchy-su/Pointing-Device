@@ -59,8 +59,9 @@ class Window:
                 if self.ws[cell_y].value is not None:
                     y_interval.append(int(self.ws[cell_y].value))
 
-            x.append(x_interval[::100])
-            y.append(y_interval[::100])
+            for period in range(len(x_interval)-50):
+                x.append(np.mean(x_interval[period:period+50]))
+                y.append(np.mean(y_interval[period:period+50]))
         return x, y
 
         """
