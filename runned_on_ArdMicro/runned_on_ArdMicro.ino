@@ -1,6 +1,5 @@
 #include <Mouse.h>
 #include <Wire.h>
-#include <LiquidCrystal.h>
 
 int16_t axRaw, ayRaw, azRaw, gxRaw, gyRaw, gzRaw, temperature; //raw data given by the sensor
 unsigned long t; //the time since the beginning of the loop() function
@@ -101,10 +100,10 @@ void loop() {
 
   if (digitalRead(5) == LOW) { //if the right switch is pushed then f+=1
     f += 1;
-    if (f > 2) f = 0;
+    if (f > 9) f = 0;
     delay(100);
     while (digitalRead(5) == LOW) {}
-    twinkle(2);
+    twinkle(3);
     calibrate();
   }
   distinguisher();
@@ -148,6 +147,12 @@ void twinkle(int func_name) {
       digitalWrite(IndicateHigh, LOW);
     }
   }
+
+  if (func_name == 3){
+    digitalWrite(IndicateLow, HIGH);
+    delay(1000);
+    digitalWrite(IndicateLow, LOW);
+  }
 }
 
 void distinguisher() {
@@ -177,8 +182,8 @@ void distinguisher() {
       move_y = (int) (ky * 100 / 8 * (1 - sin(Y * DEG_TO_RAD) / (Y * DEG_TO_RAD)));
     }
   }
-  Serial.print(X); Serial.print(';'); Serial.println(-Y);
-}
+  Serial.print(X); Serial.print(';'); Serial.print(-Y); Serial.print(';'); Serial.println(kx);
+ }
 
 void calibrate() {
   float Xcalib, Ycalib;
@@ -206,46 +211,7 @@ void calibrate() {
 }
 
 void sensitivity_changer() {
-  switch (f){
-    case 0:
-      kx = 10; ky = 10;
-      delay(5);
-      break;
-    case 1:
-      kx = 20; ky = 20;
-      delay(5);
-      break;
-    case 2:
-      kx = 30; ky = 30;
-      delay(5);
-      break;
-    case 3:
-      kx = 40; ky = 40;
-      delay(5);
-      break;
-    case 4:
-      kx = 50; ky = 50;
-      delay(5);
-      break;
-    case 5:
-      kx = 60; ky = 60;
-      delay(5);
-      break;
-    case 6:
-      kx = 70; ky = 70;
-      delay(5);
-      break;
-    case 7:
-      kx = 80; ky = 80;
-      delay(5);
-      break;
-    case 8:
-      kx = 90; ky = 90;
-      delay(5);
-      break;
-    case 9:
-      kx = 100; ky = 100;
-      delay(5);
-      break;
-  }
+  kx = (f + 1) * 10;
+  ky = (f + 1) * 10;
+  delay(5);
 }
