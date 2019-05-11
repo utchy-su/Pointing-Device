@@ -1,28 +1,4 @@
-#include <Mouse.h>
-#include <Wire.h>
-
-int16_t axRaw, ayRaw, azRaw, gxRaw, gyRaw, gzRaw, temperature; //raw data given by the sensor
-unsigned long t; //the time since the beginning of the loop() function
-float kx = 0.2; //gain for x
-float ky = 0.2; //gain for y
-char mode = 0; //mode of control type
-int move_x; //relative distance to move in X-axis
-int move_y; //relative distance to move in Y-axis
-float acc_x, acc_y, acc_z; //raw data from the sensor
-float acc_angX, acc_angY, acc_angZ; //calculated angles
-unsigned long dt; //duration for a single loop
-int s; // number of times the user pushed the switch 1
-int f; // number of times the user pushed the switch 2
-float Xoffset, Yoffset;
-
-#define RAD_TO_DEG 180/PI
-#define DEG_TO_RAD PI/180
-
-#define IndicateMode 9
-
-#define IndicateLow 10
-#define IndicateMid 11
-#define IndicateHigh 12
+#include "Header.h"
 
 void setup() {
   // put your setup code here, to run once:
@@ -152,6 +128,12 @@ void twinkle(int func_name) {
     digitalWrite(IndicateLow, HIGH);
     delay(1000);
     digitalWrite(IndicateLow, LOW);
+
+    if (f == 0){
+      digitalWrite(IndicateMid, HIGH);
+      delay(1000);
+      digitalWrite(IndicateMid, LOW);
+    }
   }
 }
 
@@ -165,21 +147,29 @@ void distinguisher() {
   }
 
   if (s == 1) { //Linear Mode
-    move_x = (int) (kx *  X / 40);
-    move_y = (int) (ky * -Y / 40);
+    move_x = (int) (kx *  X / Xmax);
+    move_y = (int) (ky * -Y / Ymax);
   }
 
   if (s == 2) { //non-linear mode
-    if (0 <= X && X < 40) {
-      move_x = (int) (kx * 100 / 8 * (1 - sin(X * DEG_TO_RAD) / (X * DEG_TO_RAD)));
-    } else if (-40 < X && X < 0) {
-      move_x = (int) (-kx * 100 / 8 * (1 - sin(X * DEG_TO_RAD) / (X * DEG_TO_RAD)));
+    if (0 <= X && X < Xmax) {
+      move_x = (int) (kx * (1 - sin(X * DEG_TO_RAD) / (X * DEG_TO_RAD)) / Cx);
+    } else if (-Xmax < X && X < 0) {
+      move_x = (int) (-kx * (1 - sin(X * DEG_TO_RAD) / (X * DEG_TO_RAD)) / Cx);
+    } else if (X < -Xmax){
+      move_x = -kx;
+    } else if (X > Xmax){
+      move_x = kx;
     }
 
-    if (0 <= Y && Y< 40) {
-      move_y = (int) (-ky * 100 / 8 * (1 - sin(Y * DEG_TO_RAD) / (Y * DEG_TO_RAD)));
-    } else if (-40 < Y && Y< 0) {
-      move_y = (int) (ky * 100 / 8 * (1 - sin(Y * DEG_TO_RAD) / (Y * DEG_TO_RAD)));
+    if (0 <= Y && Y < Ymax) {
+      move_y = (int) (-ky * (1 - sin(Y * DEG_TO_RAD) / (Y * DEG_TO_RAD)) / Cy);
+    } else if (-Ymax< Y && Y< 0) {
+      move_y = (int) (ky * (1 - sin(Y * DEG_TO_RAD) / (Y * DEG_TO_RAD)) / Cy);
+    } else if (Y < -Ymax){
+      move_y = ky;
+    } else if (Ymax < Y){
+      move_y = -ky;
     }
   }
   Serial.print(X); Serial.print(';'); Serial.print(-Y); Serial.print(';'); Serial.println(kx);
