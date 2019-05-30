@@ -2,8 +2,7 @@ import pygame
 from pygame.locals import *
 import openpyxl as px
 import numpy as np
-import itertools
-from pprint import pprint
+import pandas as pd
 
 
 class Window:
@@ -24,11 +23,10 @@ class Window:
             pygame.draw.circle(self.screen, (255, 255, 255), (int(x), int(y)), self.diameter)
             pygame.draw.circle(self.screen, (0, 0, 0), (int(x), int(y)), self.diameter, 2)
 
-        # loading the excel data
-        self.wb = px.load_workbook(path)
-        self.ws = self.wb.active
+        # load the excel data
+        self.df = pd.read_excel(path)
 
-        self.order = [int(self.ws['A' + str(i + 2)].value) for i in range(14)]
+        self.order = self.df['orders']
 
     def __draw_all(self):
         for i in range(16):
@@ -37,63 +35,30 @@ class Window:
             pygame.draw.circle(self.screen, (255, 255, 255), (int(x), int(y)), self.diameter)
             pygame.draw.circle(self.screen, (0, 0, 0), (int(x), int(y)), self.diameter, 2)
 
-    def __coordinates(self):
-        alph = [chr(i) for i in range(65, 65 + 26)] + ['A' + chr(i) for i in range(65, 65 + 26)]
-        x = []
-        y = []
-        for i in range(14):
-            x_interval = []
-            y_interval = []
+    def __coordinates2(self):
+        columns = self.df.columns
+        x_columns = columns.str.contains('x from')  # get coordinates from data sheet
+        y_columns = columns.str.contains('y from')
 
-            for row in range(self.ws.max_row):
-                alph_x = alph[(i + 1) * 3 - 2]
-                cell_x = alph_x + str(row + 2)
+        x = self.df.loc[:, x_columns]  # extract columns that contain coordinates data
+        y = self.df.loc[:, y_columns]
 
-                if self.ws[cell_x].value is not None:
-                    x_interval.append(int(self.ws[cell_x].value))
-
-            for row in range(self.ws.max_row):
-                alph_y = alph[(i + 1) * 3 - 1]
-                cell_y = alph_y + str(row + 2)
-
-                if self.ws[cell_y].value is not None:
-                    y_interval.append(int(self.ws[cell_y].value))
-
-            for period in range(len(x_interval)-50):
-                x.append(np.mean(x_interval[period:period+50]))
-                y.append(np.mean(y_interval[period:period+50]))
         return x, y
 
-        """
-        for row in range(self.ws.max_row):
-            alph_x = alph[click_count * 2 - 1]
-            cell_x = alph_x + str(row+2)
-
-            if self.ws[cell_x].value is not None:
-                x.append(int(self.ws[cell_x].value))
-
-        for row in range(self.ws.max_row):
-            alph_y = alph[click_count * 2]
-            cell_y = alph_y + str(row+2)
-
-            if self.ws[cell_y].value is not None:
-                y.append(int(self.ws[cell_y].value))
-
-        for xi, yi in itertools.product(x, y):
-            pygame.draw.circle(self.screen, (0, 0, 0), (xi, yi), 1)
-
-        """
-
     def __trajectory(self, x, y, click_count):
-        x_interval = x[click_count]
-        y_interval = y[click_count]
+        x_index = 'x from ' + str(click_count) + ' to ' + str(click_count+1)
+        y_index = 'y from ' + str(click_count) + ' to ' + str(click_count+1)
+        x_interval = x[x_index].dropna(how='all').astype(int)
+        y_interval = y[y_index].dropna(how='all').astype(int)
 
         for i in range(len(x_interval) - 1):
             pygame.draw.circle(self.screen, (0, 0, 255), (x_interval[i], y_interval[i]), 2)
 
     def __trajectory_remove(self, x, y, click_count):
-        x_interval = x[click_count]
-        y_interval = y[click_count]
+        x_index = 'x from ' + str(click_count) + ' to ' + str(click_count + 1)
+        y_index = 'y from ' + str(click_count) + ' to ' + str(click_count + 1)
+        x_interval = x[x_index].dropna(how='all').astype(int)
+        y_interval = y[y_index].dropna(how='all').astype(int)
 
         for i in range(len(x_interval) - 1):
             pygame.draw.circle(self.screen, (255, 255, 255), (x_interval[i], y_interval[i]), 2)
@@ -140,7 +105,8 @@ class Window:
     def main(self):
         click_count = 0
         order = self.order  # excelファイルから引っ張ってきたやつ．leftmostのデータ
-        x, y = self.__coordinates()
+        x, y = self.__coordinates2()
+        print(x, y)
         while True:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -153,6 +119,6 @@ class Window:
 
 
 if __name__ == '__main__':
-    path = 'PATH'
+    path = 'C:/Users/socre/Desktop/linear vs non-linear result/Self/linear/attempt1.xlsx'
     test = Window(path)
     test.main()
