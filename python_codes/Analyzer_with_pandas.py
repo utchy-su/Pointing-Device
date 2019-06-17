@@ -322,7 +322,7 @@ class Analyzer:
 
 if __name__ == '__main__':
     def data_generate():
-        path = 'C:/Users/smart/Google ドライブ/Pdev_results/linear vs non-linear result/Kitamura/non-linear/'
+        path = 'path'
         attempts = [path + 'attempt' + str(i) + '.xlsx' for i in np.arange(1, 26, 1)]
 
         df = pd.DataFrame(columns=['click', 'TRE', 'TAC', 'MV', 'ME', 'MO', 'Time Spent', 'Throughput'])
@@ -338,4 +338,3 @@ if __name__ == '__main__':
         print(df)
 
     data_generate()
-
