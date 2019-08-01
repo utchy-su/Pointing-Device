@@ -30,10 +30,10 @@ void setup() {
   calibrate();
 
   //Initialize the all LED
-  pinMode(IndicateMode, OUTPUT);
-  pinMode(IndicateLow, OUTPUT);
-  pinMode(IndicateMid, OUTPUT);
-  pinMode(IndicateHigh, OUTPUT);
+  pinMode(IndicateMode, OUTPUT); //9番ピンを初期化
+  pinMode(IndicateLow, OUTPUT);  //10番ピンを初期化
+  pinMode(IndicateMid, OUTPUT);  //11番ピンを初期化
+  pinMode(IndicateHigh, OUTPUT);  //12番ピンを初期化
   digitalWrite(IndicateMode, HIGH);
   digitalWrite(IndicateLow, HIGH);
   digitalWrite(IndicateMid, HIGH);
@@ -43,19 +43,22 @@ void setup() {
   digitalWrite(IndicateLow, LOW);
   digitalWrite(IndicateMid, LOW);
   digitalWrite(IndicateHigh, LOW);
+  //起動時にすべてのLEDが一瞬点灯する
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  t = millis();
+  
+  t = millis();  //get the current time at the beggining of the loop
+  
   Wire.beginTransmission(0x68);
   Wire.write(0x3B);
   Wire.endTransmission();
   Wire.requestFrom(0x68, 14);
   while (Wire.available() < 14);
-  axRaw = Wire.read() << 8 | Wire.read();
-  ayRaw = Wire.read() << 8 | Wire.read();
-  azRaw = Wire.read() << 8 | Wire.read();
+  axRaw = Wire.read() << 8 | Wire.read();  //get the acceleration on x-axis
+  ayRaw = Wire.read() << 8 | Wire.read();  //get the acceleration on y-axis
+  azRaw = Wire.read() << 8 | Wire.read();  //get the acceleration on z-axis
 
   acc_x = axRaw / 16384.0; //convert raw data into m/s^2
   acc_y = ayRaw / 16384.0;
