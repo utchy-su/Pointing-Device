@@ -1,0 +1,95 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import scipy.stats as st
+
+base_directory = "/home/soichiro/Desktop/pdev/editing/data/"
+
+linear_1 = pd.read_excel(base_directory + "Emi/linear_result.xlsx")
+linear_2 = pd.read_excel(base_directory + "Toshiko/linear_result.xlsx")
+linear_3 = pd.read_excel(base_directory + "Mai/linear_result.xlsx")
+linear_4 = pd.read_excel(base_directory + "Rei/linear_result.xlsx")
+linear_5 = pd.read_excel(base_directory + "Kimika/linear_result.xlsx")
+
+model_1 = pd.read_excel(base_directory + "Emi/model_result.xlsx")
+model_2 = pd.read_excel(base_directory + "Toshiko/model_result.xlsx")
+model_3 = pd.read_excel(base_directory + "Mai/model_result.xlsx")
+model_4 = pd.read_excel(base_directory + "Rei/model_result.xlsx")
+model_5 = pd.read_excel(base_directory + "Kimika/model_result.xlsx")
+
+print(model_5)
+
+def show_by_criteria(index):
+    linear_indexes = [linear_1[index], linear_2[index], linear_3[index], linear_4[index], linear_5[index]]
+    model_indexes = [model_1[index], model_2[index], model_3[index], model_4[index], model_5[index]]
+
+    label_x = ["Participant 1", "Participant 2", "Participant 3", "Participant 4", "Participant 5"]
+
+    x1 = [1, 2, 3, 4, 5]
+    y1 = [linear_indexes[i].mean() for i in range(5)]
+    std1 = [linear_indexes[i].std(ddof=1) for i in range(5)]
+
+    x2 = [1.3, 2.3, 3.3, 4.3, 5.3]
+    y2 = [model_indexes[i].mean() for i in range(5)]
+    std2 = [linear_indexes[i].std(ddof=1) for i in range(5)]
+
+    plt.bar(x1, y1, width=0.3, label="linear", align="center")
+    plt.errorbar(x1, y1, yerr=std1, ecolor="black", capsize=4, capthick=0.5, elinewidth=0.5, ls='none')
+
+    plt.bar(x2, y2, width=0.3, label="model", align="center")
+    plt.errorbar(x2, y2, yerr=std2, ecolor="black", capsize=4, capthick=0.5, elinewidth=0.5, ls='none')
+
+    plt.legend(loc=2)
+
+    plt.xticks([1.15, 2.15, 3.15, 4.15, 5.15], label_x)
+
+    plt.title(index)
+
+    plt.show()
+
+def show_by_summary(index):
+
+    linear_summary = linear_1
+    linear_summary = linear_summary.append(linear_2, ignore_index=True)
+    linear_summary = linear_summary.append(linear_3, ignore_index=True)
+    linear_summary = linear_summary.append(linear_4, ignore_index=True)
+    linear_summary = linear_summary.append(linear_5, ignore_index=True)
+
+    model_summary = model_1
+    model_summary = model_summary.append(model_2, ignore_index=True)
+    model_summary = model_summary.append(model_3, ignore_index=True)
+    model_summary = model_summary.append(model_4, ignore_index=True)
+    model_summary = model_summary.append(model_5, ignore_index=True)
+
+    label_x = ["linear", "model"]
+
+    plt.bar([1], linear_summary[index].mean(), label="linear", align="center")
+    plt.errorbar([1], linear_summary[index].mean(), yerr=linear_summary[index].std(ddof=1), ecolor="black", capsize=4, capthick=0.5, elinewidth=0.5, ls="none")
+
+    plt.bar([2], model_summary[index].mean(), label="linear", align="center")
+    plt.errorbar([2], model_summary[index].mean(), yerr=model_summary[index].std(ddof=1), ecolor="black", capsize=4, capthick=0.5, elinewidth=0.5, ls="none")
+
+    plt.title(index)
+    plt.xticks([1, 2], label_x)
+    plt.legend(loc=2)
+    plt.show()
+
+    print("linear follows the normal distribution?: ", st.shapiro(linear_summary[index])[1] >= 0.05)
+    print("model follows the normal distribution?: ", st.shapiro(model_summary[index])[1] >= 0.05)
+
+    print("Mann-Whitney's U-test")
+    print("Statistically significant difference?: ", st.mannwhitneyu(linear_summary[index], model_summary[index], alternative="two-sided")[1] < 0.05)
+    #2群の代表値には差があるといえる.
+
+
+
+if __name__ == "__main__":
+    import sys
+
+    args = sys.argv
+
+    if len(args) == 1:
+        raise ValueError("invalid number of arguments: pass the parameter on the command line")
+    else:
+        #show_by_criteria(args[1])
+        show_by_summary(args[1])

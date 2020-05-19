@@ -119,7 +119,7 @@ class Analyzer:
             sgn = ([np.sign(a*x + b*y + c) for x, y in zip(x_cods, y_cods)])
             signed_distance = distance*sgn
 
-            mv = np.var(distance)
+            mv = np.sqrt(np.var(distance))
             me = np.mean(distance)
             mo = np.mean(signed_distance)
 

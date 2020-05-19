@@ -261,7 +261,7 @@ class Drawer:
 if __name__ == '__main__':
     for attempt in range(5):
         name = 'attempt' + str(attempt+1)
-        data_path = 'sensitivity_tuning/nonlin_90/' + name + '.xlsx'
+        data_path = 'home/soichiro/Desktop/' + name + '.xlsx'
         test = Drawer(data_path, 'N/A')
         test.main()
         print("if ready for the next, press ESC key")

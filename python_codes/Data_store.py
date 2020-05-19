@@ -12,11 +12,12 @@ class DataFrames:
     def __init__(self, path):
         self.__path = path
         self.__data = pd.read_excel(self.__path)
-        self.__orders = self.__data['orders']
+        self.__orders = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
         self.__cods = {'x':[], 'y':[]}
         self.__time = []
         self.__cods_calculator()  # 座標データをcodsに格納
         self.__time_calculator()  # 各タスクにかかった時間をtimeに格納
+
 
     def __cods_calculator(self) -> None:
         """
@@ -24,19 +25,20 @@ class DataFrames:
         @return : a list of a list containining coordinates
         """
 
-        for i in range(1, 15):
+        for i in range(15):
             tgt_num = self.__orders[i]
             x_destination = 450 * 200 * np.cos(np.pi * tgt_num / 8)
             y_destination = 450 * 200 * np.sin(np.pi * tgt_num / 8)
 
-            x_index = 'x from ' + str(i) + ' to ' + str(i+1)
-            y_index = 'y from ' + str(i) + ' to ' + str(i+1)
+            x_index = 'x from ' + str(i+1) + ' to ' + str(i+2)
+            y_index = 'y from ' + str(i+1) + ' to ' + str(i+2)
 
             x_cods = self.__data[x_index].dropna(how='all')
             y_cods = self.__data[y_index].dropna(how='all')
 
-            x_cods = [np.mean(x_cods[j:j+5]) for j in range(0, len(x_cods)-5, 5)]
-            y_cods = [np.mean(y_cods[j:j+5]) for j in range(0, len(y_cods)-5, 5)]
+            flattening_range = 20
+            x_cods = [np.mean(x_cods[j:j+flattening_range]) for j in range(0, len(x_cods)-flattening_range, flattening_range)]
+            y_cods = [np.mean(y_cods[j:j+flattening_range]) for j in range(0, len(y_cods)-flattening_range, flattening_range)]
 
             self.__cods['x'].append(x_cods)
             self.__cods['y'].append(y_cods)
@@ -45,7 +47,7 @@ class DataFrames:
         """
         get the time spent for each task
         """
-        for i in range(1, 15):
+        for i in range(15):
             time_index = 'time from ' + str(i) + ' to ' + str(i+1)
 
             time = self.__data[time_index].dropna(how="all")
