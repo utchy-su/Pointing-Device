@@ -43,7 +43,7 @@ def show_by_criteria(index):
 
     plt.xticks([1.15, 2.15, 3.15, 4.15, 5.15], label_x)
 
-    plt.title(index)
+    plt.title(index + ": comparison by participants")
 
     plt.show()
 
@@ -66,7 +66,7 @@ def show_by_summary(index):
     plt.bar([1], linear_summary[index].mean(), label="linear", align="center")
     plt.errorbar([1], linear_summary[index].mean(), yerr=linear_summary[index].std(ddof=1), ecolor="black", capsize=4, capthick=0.5, elinewidth=0.5, ls="none")
 
-    plt.bar([2], model_summary[index].mean(), label="linear", align="center")
+    plt.bar([2], model_summary[index].mean(), label="model", align="center")
     plt.errorbar([2], model_summary[index].mean(), yerr=model_summary[index].std(ddof=1), ecolor="black", capsize=4, capthick=0.5, elinewidth=0.5, ls="none")
 
     plt.title(index)
@@ -81,7 +81,29 @@ def show_by_summary(index):
     print("Statistically significant difference?: ", st.mannwhitneyu(linear_summary[index], model_summary[index], alternative="two-sided")[1] < 0.05)
     #2群の代表値には差があるといえる.
 
+def show_familiality_trend(index, who):
 
+    results = {1: (linear_1, model_1), 2: (linear_2, model_2), 3: (linear_3, model_3), 4: (linear_4, model_4), 5: (linear_5, model_5)}
+
+    data = results[who]
+
+    linear_trend = data[0][index]
+    model_trend = data[1][index]
+
+    x1 = np.arange(0, len(linear_trend), 1)
+    x2 = np.arange(0, len(model_trend), 1)
+
+    plt.plot(x1, linear_trend, label="linear")
+    plt.plot(x2, model_trend, label="model")
+
+    plt.legend(loc=2)
+
+    plt.ylim(0, 250)
+    plt.xlabel("# of attempt")
+    plt.ylabel("index: " + index)
+    plt.title("subject No." + str(who))
+
+    plt.show()
 
 if __name__ == "__main__":
     import sys
@@ -90,6 +112,8 @@ if __name__ == "__main__":
 
     if len(args) == 1:
         raise ValueError("invalid number of arguments: pass the parameter on the command line")
-    else:
-        #show_by_criteria(args[1])
+    elif len(args) == 2:
+        # show_by_criteria(args[1])
         show_by_summary(args[1])
+    elif len(args) == 3:
+        show_familiality_trend(args[1], int(args[2]))
