@@ -98,7 +98,7 @@ def show_familiality_trend(index, who):
 
     plt.legend(loc=2)
 
-    plt.ylim(0, 250)
+    plt.ylim(0, 5)
     plt.xlabel("# of attempt")
     plt.ylabel("index: " + index)
     plt.title("subject No." + str(who))

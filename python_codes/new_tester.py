@@ -11,7 +11,7 @@ import pyautogui as pag
 TODO: 時間の測定
 TODO: csvファイルへの書き出し
 TODO: x = 450でしか直線が表せないときの例外処理
-TODO: 
+TODO:
 """
 class Base:
     TGT_RADIUS = 15
@@ -202,11 +202,11 @@ class Tester:
             x_record.append(x)
             y_record.append(y)
 
-            self.__testMouseMove(counter, i)
-            if i == 5:
-                i = 1
-            else:
-                i += 1
+            # self.__testMouseMove(counter, i)
+            # if i == 5:
+            #     i = 1
+            # else:
+            #     i += 1
 
             for event in pygame.event.get():
                 if event.type == QUIT:
