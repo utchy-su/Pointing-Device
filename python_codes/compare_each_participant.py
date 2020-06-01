@@ -17,10 +17,31 @@ model_3 = pd.read_excel(base_directory + "Mai/model_result.xlsx")
 model_4 = pd.read_excel(base_directory + "Rei/model_result.xlsx")
 model_5 = pd.read_excel(base_directory + "Kimika/model_result.xlsx")
 
-print(model_5)
+def return_combined_data():
+
+    linear = linear_1
+    linear = linear.append(linear_2, ignore_index=True)
+    linear = linear.append(linear_3, ignore_index=True)
+    linear = linear.append(linear_4, ignore_index=True)
+    linear = linear.append(linear_5, ignore_index=True)
+
+    model = model_1
+    model = model.append(model_2, ignore_index=True)
+    model = model.append(model_3, ignore_index=True)
+    model = model.append(model_4, ignore_index=True)
+    model = model.append(model_5, ignore_index=True)
+
+    linear = linear[linear.ME <= 150]
+    model = model[model.ME <= 150]
+
+    linear = linear[linear.TRE <= 4]
+    model = model[model.TRE <= 4]
+
+    return linear, model
 
 def show_by_criteria(index):
-    linear_indexes = [linear_1[index], linear_2[index], linear_3[index], linear_4[index], linear_5[index]]
+    linear_1_ = linear_1[linear_1.ME <= 150]
+    linear_indexes = [linear_1_[index], linear_2[index], linear_3[index], linear_4[index], linear_5[index]]
     model_indexes = [model_1[index], model_2[index], model_3[index], model_4[index], model_5[index]]
 
     label_x = ["Participant 1", "Participant 2", "Participant 3", "Participant 4", "Participant 5"]
@@ -49,17 +70,7 @@ def show_by_criteria(index):
 
 def show_by_summary(index):
 
-    linear_summary = linear_1
-    linear_summary = linear_summary.append(linear_2, ignore_index=True)
-    linear_summary = linear_summary.append(linear_3, ignore_index=True)
-    linear_summary = linear_summary.append(linear_4, ignore_index=True)
-    linear_summary = linear_summary.append(linear_5, ignore_index=True)
-
-    model_summary = model_1
-    model_summary = model_summary.append(model_2, ignore_index=True)
-    model_summary = model_summary.append(model_3, ignore_index=True)
-    model_summary = model_summary.append(model_4, ignore_index=True)
-    model_summary = model_summary.append(model_5, ignore_index=True)
+    linear_summary, model_summary = return_combined_data()
 
     label_x = ["linear", "model"]
 
@@ -81,6 +92,7 @@ def show_by_summary(index):
     print("Statistically significant difference?: ", st.mannwhitneyu(linear_summary[index], model_summary[index], alternative="two-sided")[1] < 0.05)
     #2群の代表値には差があるといえる.
 
+
 def show_familiality_trend(index, who):
 
     results = {1: (linear_1, model_1), 2: (linear_2, model_2), 3: (linear_3, model_3), 4: (linear_4, model_4), 5: (linear_5, model_5)}
@@ -98,7 +110,7 @@ def show_familiality_trend(index, who):
 
     plt.legend(loc=2)
 
-    plt.ylim(0, 5)
+    plt.ylim(0, 300)
     plt.xlabel("# of attempt")
     plt.ylabel("index: " + index)
     plt.title("subject No." + str(who))

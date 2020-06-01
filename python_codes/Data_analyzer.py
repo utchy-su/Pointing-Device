@@ -6,6 +6,7 @@ from Data_store import DataFrames
 from new_tester import TaskAxis
 import pygame
 from pygame.locals import *
+import sys
 
 class Analyzer:
     TGT_RADIUS = 30  # radius of the target
@@ -55,7 +56,7 @@ class Analyzer:
         x_tgt = int(450 + 200 * np.cos(np.pi * self.__order[i+1] / 8))
         y_tgt = int(450 + 200 * np.sin(np.pi * self.__order[i+1] / 8))
 
-        print(x_prev, y_prev, " -> ", x_tgt, y_tgt)
+        # print(x_prev, y_prev, " -> ", x_tgt, y_tgt)
 
         a = -(y_tgt - y_prev)
         b = (x_tgt - x_prev)
@@ -63,9 +64,11 @@ class Analyzer:
 
         return a, b, c
 
+    def __show_route_initialize(self):
+        pygame.init()
+
     def __show_route(self, count):
         screen_size = (900, 900)
-        pygame.init()
         screen = pygame.display.set_mode(screen_size)
         screen.fill((255, 255, 255))
 
@@ -85,9 +88,14 @@ class Analyzer:
         for x, y in zip(x_route, y_route):
             pygame.draw.circle(screen, (0, 0, 0), (int(x), int(y)), 1)
 
+
         pygame.display.update()
 
-        pygame.time.wait(4000)
+        while True:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:
+                    pygame.quit()
+                    return
 
 
 
@@ -211,6 +219,17 @@ class Analyzer:
 
         return Throughput
 
+    def check_route(self):
+
+        for i in range(15):
+            self.__show_route(i)
+
+    def __remove_outliers(self, df):
+
+        df = df[df.ME <= 150]
+
+        return df
+
     def main(self):
         TRE = self.__TRE_counter()
         TAC = self.__TAC_counter()
@@ -231,12 +250,15 @@ class Analyzer:
             'Throughput': TP
         })
 
+        df = self.__remove_outliers(df)
+        # print(df)
+
         return df
 
 
 if __name__ == "__main__":
     def data_generate():
-        path = "/home/soichiro/Desktop/pdev/editing/data/Kimika/linear"
+        path = "/home/soichiro/Desktop/pdev/editing/data/Emi/linear"
         attempts = [path + str(i) + ".xlsx" for i in range(1, 6)]
         df = pd.DataFrame(columns=["click", "TRE", "TAC", "MV", "ME", "MO", "MDC", "ODC", "Throughput"])
 
@@ -245,10 +267,23 @@ if __name__ == "__main__":
             data_frame = test.main()
             df = df.append(data_frame, ignore_index=True)
 
-        save_path = "/home/soichiro/Desktop/pdev/editing/data/Emi/test_result.xlsx"
-        df.to_excel(save_path)
+        save_path = "/home/soichiro/Desktop/pdev/editing/data/Emi/test_result_outliers_removed.xlsx"
+        # df.to_excel(save_path)
+
+    def unit_test():
+        path = "/home/soichiro/Desktop/pdev/editing/data/Emi/linear1.xlsx"
+
+        test = Analyzer(path)
+        df = test.main()
         print(df)
 
-        print(df['MDC'].mean(), df['ODC'].mean())
+    def check_route():
+        path = "/home/soichiro/Desktop/pdev/editing/data/Emi/linear"
+        attempts = [path + str(i) + ".xlsx" for i in range(1, 6)]
+
+        for data in attempts:
+            test = Analyzer(data)
+            test.check_route()
+
 
     data_generate()
