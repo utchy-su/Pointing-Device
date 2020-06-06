@@ -24,7 +24,9 @@ class Project_runner:
             df = analyzer.main()
             self.__linear_data = self.__linear_data.append(df, ignore_index=True)
 
-        self.__linear_data.to_excel(self.__directory_path + "/linear_result.xlsx")
+            # print(df)
+
+        self.__linear_data.to_excel(self.__directory_path + "/linear_outlier_removed_50.xlsx")
 
     def __analyze_model(self):
         for i in range(1, 6, 1):
@@ -36,7 +38,7 @@ class Project_runner:
             df = analyzer.main()
             self.__model_data = self.__model_data.append(df, ignore_index=True)
 
-        self.__model_data.to_excel(self.__directory_path + "/model_result.xlsx")
+        self.__model_data.to_excel(self.__directory_path + "/model_outlier_removed_50.xlsx")
 
 
     def main(self):

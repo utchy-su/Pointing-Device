@@ -30,8 +30,10 @@ class DataFrames:
             x_destination = 450 * 200 * np.cos(np.pi * tgt_num / 8)
             y_destination = 450 * 200 * np.sin(np.pi * tgt_num / 8)
 
-            x_index = 'x from ' + str(i+1) + ' to ' + str(i+2)
-            y_index = 'y from ' + str(i+1) + ' to ' + str(i+2)
+            x_index = 'x from ' + str(i) + ' to ' + str(i+1)
+            y_index = 'y from ' + str(i) + ' to ' + str(i+1)
+
+            #Kimikaのときはi+1とi+2にしないとindexが合わなくなる
 
             x_cods = self.__data[x_index].dropna(how='all')
             y_cods = self.__data[y_index].dropna(how='all')

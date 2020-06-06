@@ -136,6 +136,8 @@ class Analyzer:
             sgn = ([np.sign(a*x + b*y + c) for x, y in zip(x_cods, y_cods)])
             signed_distance = distance*sgn
 
+            # print("distance:")
+            # print(distance)
             mv = np.sqrt(np.var(distance))
             me = np.mean(distance)
             mo = np.mean(signed_distance)
@@ -226,7 +228,7 @@ class Analyzer:
 
     def __remove_outliers(self, df):
 
-        df = df[df.ME <= 150]
+        df = df[df.ME <= 50]
 
         return df
 
@@ -258,7 +260,7 @@ class Analyzer:
 
 if __name__ == "__main__":
     def data_generate():
-        path = "/home/soichiro/Desktop/pdev/editing/data/Emi/linear"
+        path = "/home/soichiro/Desktop/pdev/editing/data/Kimika/model"
         attempts = [path + str(i) + ".xlsx" for i in range(1, 6)]
         df = pd.DataFrame(columns=["click", "TRE", "TAC", "MV", "ME", "MO", "MDC", "ODC", "Throughput"])
 
@@ -267,7 +269,9 @@ if __name__ == "__main__":
             data_frame = test.main()
             df = df.append(data_frame, ignore_index=True)
 
-        save_path = "/home/soichiro/Desktop/pdev/editing/data/Emi/test_result_outliers_removed.xlsx"
+        # print(df)
+
+        save_path = "/home/soichiro/Desktop/pdev/editing/data/Kimika/model_outlier_removed.xlsx"
         # df.to_excel(save_path)
 
     def unit_test():
@@ -284,6 +288,5 @@ if __name__ == "__main__":
         for data in attempts:
             test = Analyzer(data)
             test.check_route()
-
 
     data_generate()
