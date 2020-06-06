@@ -99,6 +99,7 @@ class Tester:
 
     TGT_RADIUS = 15
     TGT_DIAMETER = 30
+    ALLOWABLE_ERROR = 100
 
     def __init__(self, path):
         self.x = {}
@@ -133,7 +134,7 @@ class Tester:
 
         df.to_excel(self.path)
 
-    def __testMouseMove(self, counter, i):
+    def __testMouseMove(self, counter):
         x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter] / 8)))
         y_from = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter] / 8)))
 
@@ -159,6 +160,23 @@ class Tester:
         else:
             x, y = pag.position()
             pag.leftClick(x, y)
+
+
+    def __isDriftingAway(self, x, y, counter):
+        x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter] / 8)))
+        y_from = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter] / 8)))
+
+        # task axis に沿ってマウスカーソルを動かす
+        x_to = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter + 1] / 8)))
+        y_to = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter + 1] / 8)))
+
+        a = -(y_to - y_from)
+        b = (x_to - x_from)
+        c = -x_to * y_from + y_to * x_from
+
+        dist = abs(a*x + b*y + c)/math.sqrt(a**2 + b**2)
+
+        return dist > Tester.ALLOWABLE_ERROR
 
 
     def main(self):
@@ -191,18 +209,26 @@ class Tester:
 
 
         #描画を続けるループ。右上のXボタンを押せば強制終了出来る
-        i = 1
         while True:
             pygame.display.update()
             now = pygame.time.get_ticks()
             x, y = pygame.mouse.get_pos()
+
+            # abort the task if the cursor is drifting away too much
+            if self.__isDriftingAway(x, y, counter):
+                time_record = []
+                x_record = []
+                y_record = []
+                x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter] / 8)))
+                y_from = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter] / 8)))
+                pygame.mouse.set_pos(x_from, y_from)
 
 
             time_record.append(now)
             x_record.append(x)
             y_record.append(y)
 
-            # self.__testMouseMove(counter, i)
+            # self.__testMouseMove(counter)
             # if i == 5:
             #     i = 1
             # else:
@@ -238,6 +264,7 @@ class Tester:
                         counter += 1
                         del test
                         test = TaskAxis(counter, screen)
+
 
 if __name__ == "__main__":
     import sys
