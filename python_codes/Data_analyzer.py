@@ -17,7 +17,7 @@ class Analyzer:
         self.__order = self.__data.get_orders()
         self.__time = self.__data.get_time()
 
-    def __TRE_counter(self):
+    def _TRE_counter(self):
         TRE = []
 
         for i in range(15):
@@ -99,7 +99,7 @@ class Analyzer:
 
 
 
-    def __TAC_counter(self):
+    def _TAC_counter(self):
         TAC = []
 
         for i in range(15):
@@ -118,7 +118,7 @@ class Analyzer:
 
         return TAC
 
-    def __MV_ME_MO_counter(self):
+    def _MV_ME_MO_counter(self):
         MV = []
         ME = []
         MO = []
@@ -148,7 +148,7 @@ class Analyzer:
 
         return MV, ME, MO
 
-    def __MDC_counter(self):
+    def _MDC_counter(self):
 
         MDC = []
 
@@ -175,7 +175,7 @@ class Analyzer:
 
         return MDC
 
-    def __ODC_counter(self):
+    def _ODC_counter(self):
         ODC = []
 
         for i in range(15):
@@ -199,7 +199,7 @@ class Analyzer:
 
         return ODC
 
-    def __TP_counter(self):
+    def _TP_counter(self):
         Throughput = []
 
         for i in range(15):
@@ -233,12 +233,12 @@ class Analyzer:
         return df
 
     def main(self):
-        TRE = self.__TRE_counter()
-        TAC = self.__TAC_counter()
-        MV, ME, MO = self.__MV_ME_MO_counter()
-        TP = self.__TP_counter()
-        MDC = self.__MDC_counter()
-        ODC = self.__ODC_counter()
+        TRE = self._TRE_counter()
+        TAC = self._TAC_counter()
+        MV, ME, MO = self._MV_ME_MO_counter()
+        TP = self._TP_counter()
+        MDC = self._MDC_counter()
+        ODC = self._ODC_counter()
 
         df = pd.DataFrame({
             'click': np.arange(1, 16),
@@ -256,6 +256,44 @@ class Analyzer:
         # print(df)
 
         return df
+
+
+class Analyzer2(Analyzer):
+
+    def __init__(self, path, ME_cutoff, TRE_cutoff):
+        super().__init__(path)
+        self.ME_cutoff = ME_cutoff
+        self.TRE_cutoff = TRE_cutoff
+
+
+    def main(self):
+        TRE = self._TRE_counter()
+        TAC = self._TAC_counter()
+        MV, ME, MO = self._MV_ME_MO_counter()
+        TP = self._TP_counter()
+        MDC = self._MDC_counter()
+        ODC = self._ODC_counter()
+
+        df = pd.DataFrame({
+            'click': np.arange(1, 16),
+            'TRE': TRE,
+            'TAC': TAC,
+            'MV': MV,
+            'ME': ME,
+            'MO': MO,
+            'MDC': MDC,
+            'ODC': ODC,
+            'Throughput': TP
+        })
+
+        countAll = len(df)
+
+        df = df[df.ME <= self.ME_cutoff]
+        df = df[df.TRE <= self.TRE_cutoff]
+
+        countValid = len(df)
+
+        return countAll, countValid
 
 
 if __name__ == "__main__":
@@ -288,5 +326,3 @@ if __name__ == "__main__":
         for data in attempts:
             test = Analyzer(data)
             test.check_route()
-
-    data_generate()
