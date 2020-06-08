@@ -260,10 +260,11 @@ class Analyzer:
 
 class Analyzer2(Analyzer):
 
-    def __init__(self, path, ME_cutoff, TRE_cutoff):
+    def __init__(self, path, ME_cutoff, TRE_cutoff, TP_cutoff):
         super().__init__(path)
         self.ME_cutoff = ME_cutoff
         self.TRE_cutoff = TRE_cutoff
+        self.TP_cutoff = TP_cutoff
 
 
     def main(self):
@@ -290,6 +291,7 @@ class Analyzer2(Analyzer):
 
         df = df[df.ME <= self.ME_cutoff]
         df = df[df.TRE <= self.TRE_cutoff]
+        df = df[df.Throughput >= self.TP_cutoff]
 
         countValid = len(df)
 

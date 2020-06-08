@@ -8,27 +8,24 @@ import pyautogui as pag
 
 """
 ベースの円を描画するクラス
-TODO: 時間の測定
-TODO: csvファイルへの書き出し
-TODO: x = 450でしか直線が表せないときの例外処理
-TODO:
+TODO: arduinoからの角度データの受取り(pyserialの実装)
 """
 class Base:
-    TGT_RADIUS = 15
-    TGT_DIAMETER = 30
-    LAYOUT_RADIUS = 200
-    LAYOUT_DIAMETER = 400
+    TGT_RADIUS = 15  # ターゲットの円の半径
+    TGT_DIAMETER = 30 # ターゲットの円の直径
+    LAYOUT_RADIUS = 200  # ターゲットを配置する大きい円周の半径
+    LAYOUT_DIAMETER = 400  # ターゲットを配置する大きい演習の直径
 
     def __init__(self, screen, screen_size):
         if not isinstance(screen_size, tuple):
             raise TypeError("screen_size should be tuple")
 
-        self.screen = screen
-        self.center = (int(screen_size[0]/2), int(screen_size[1]/2))
-        #TODO: 円を必要個数描写
+        self.screen = screen  # スクリーンのサイズ(例：(500, 500))
+        self.center = (int(screen_size[0]/2), int(screen_size[1]/2))  #スクリーンの中心座標
         self.__draw()
 
     def __del__(self):
+        # デストラクタ。何もしないので無視していい。
         pass
 
     def update(self):

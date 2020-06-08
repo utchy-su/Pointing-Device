@@ -32,9 +32,7 @@ class DataFrames:
 
             x_index = 'x from ' + str(i) + ' to ' + str(i+1)
             y_index = 'y from ' + str(i) + ' to ' + str(i+1)
-
-            #Kimikaのときはi+1とi+2にしないとindexが合わなくなる
-
+            
             x_cods = self.__data[x_index].dropna(how='all')
             y_cods = self.__data[y_index].dropna(how='all')
 
