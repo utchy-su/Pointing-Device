@@ -77,6 +77,7 @@ class TaskAxis:
 
 
     """
+    Draw a task axis. Constructor executes this method.
     """
     def __draw(self):
         x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[self.count] / 8)))
@@ -264,11 +265,8 @@ class Tester:
 
 
 if __name__ == "__main__":
-    import sys
-    args = sys.argv
-
-    if len(args) == 1:
-        raise Exception("Path for excel data to save must be given")
-    else:
-        test = Tester(args[1])
-        test.main()
+    path = "これをデータを保存したいデータのパスにしてください"
+    # 例：デスクトップにtest.xlsxという名前で保存したいのであれば
+    #    C:Users/FUJITSU/Desktop/test.xlsx  というパスになるかと思います。
+    test = Tester(path)
+    test.main()

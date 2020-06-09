@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as st
 from Data_store import DataFrames
-from new_tester import TaskAxis
+from New_tester import TaskAxis
 import pygame
 from pygame.locals import *
 import sys
@@ -252,7 +252,7 @@ class Analyzer:
             'Throughput': TP
         })
 
-        df = self.__remove_outliers(df)
+        # df = self.__remove_outliers(df)
         # print(df)
 
         return df
@@ -299,32 +299,14 @@ class Analyzer2(Analyzer):
 
 
 if __name__ == "__main__":
-    def data_generate():
-        path = "/home/soichiro/Desktop/pdev/editing/data/Kimika/model"
-        attempts = [path + str(i) + ".xlsx" for i in range(1, 6)]
-        df = pd.DataFrame(columns=["click", "TRE", "TAC", "MV", "ME", "MO", "MDC", "ODC", "Throughput"])
-
-        for data in attempts:
-            test = Analyzer(data)
-            data_frame = test.main()
-            df = df.append(data_frame, ignore_index=True)
-
-        # print(df)
-
-        save_path = "/home/soichiro/Desktop/pdev/editing/data/Kimika/model_outlier_removed.xlsx"
-        # df.to_excel(save_path)
 
     def unit_test():
-        path = "/home/soichiro/Desktop/pdev/editing/data/Emi/linear1.xlsx"
-
+        path = "これをNew_tester.pyで作成したxlsxファイルのパスにしてください"
+        # 例：New_tester.pyによってデスクトップにtest.xlsxが作成されたなら
+        #    C:Users/FUFITSU/Desktop/test.xlsxに変更してください
         test = Analyzer(path)
         df = test.main()
-        print(df)
 
-    def check_route():
-        path = "/home/soichiro/Desktop/pdev/editing/data/Emi/linear"
-        attempts = [path + str(i) + ".xlsx" for i in range(1, 6)]
+        print(df)  #データを分析した結果がコンソールに表示されます。
 
-        for data in attempts:
-            test = Analyzer(data)
-            test.check_route()
+    unit_test()
