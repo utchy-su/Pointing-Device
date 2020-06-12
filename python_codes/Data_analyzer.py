@@ -301,7 +301,7 @@ class Analyzer2(Analyzer):
 if __name__ == "__main__":
 
     def unit_test():
-        path = "これをNew_tester.pyで作成したxlsxファイルのパスにしてください"
+        path = "./test.xlsx"
         # 例：New_tester.pyによってデスクトップにtest.xlsxが作成されたなら
         #    C:Users/FUFITSU/Desktop/test.xlsxに変更してください
         test = Analyzer(path)

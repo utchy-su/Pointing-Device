@@ -265,7 +265,7 @@ class Tester:
 
 
 if __name__ == "__main__":
-    path = "これをデータを保存したいデータのパスにしてください"
+    path = "./test.xlsx"
     # 例：デスクトップにtest.xlsxという名前で保存したいのであれば
     #    C:Users/FUJITSU/Desktop/test.xlsx  というパスになるかと思います。
     test = Tester(path)
