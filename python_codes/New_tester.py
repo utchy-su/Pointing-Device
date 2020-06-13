@@ -84,7 +84,7 @@ class TaskAxis:
         ターゲット円の半径。
     layout_radius : int
         レイアウト円の半径。
-    ORDERS : list
+    orders : list
         右端の円から半時計回りに0, 1, 2, 3,...と番号振ってます。n回目のクリックでORDERS[n]が赤く塗られます。
     count : int
         今何回目のクリックかを示します
@@ -111,7 +111,6 @@ class TaskAxis:
         self.screen = screen
         self.__tgt_radius = tgt_radius
         self.__layout_radius = layout_radius
-        # self.__orders = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
         self.__orders = orders
         self.__draw()
 

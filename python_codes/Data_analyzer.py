@@ -1,3 +1,22 @@
+"""Data_analyzer.pyの機能に関して
+
+    * Author : S.Uchino
+    * Data_analyzerクラスは座標データから以下の情報を計算します。
+        - TRE(Target Re-Entry): ターゲットの円にカーソルが再進入した回数
+        - TAC(Task Axis Crossing): なぞり経路を横切った回数
+        - MDC(Movement Direction Change): なぞり経路に垂直な方向に進行方向が変化した回数
+        - ODC(Orthogonal Direction Change): なぞり経路に沿った方向に進行方向が変化した回数
+        - ME(Movement Error): ズレ絶対値の平均 Σ|y_i|/n
+        - MV(Movement Variability):　ズレの標準偏差 √(Σ(y_i-y')/n)
+        - MO(Movement Offset): ズレの平均　Σy_i/n
+        - Throughput: 各タスクの時間的なパフォーマンス指標
+
+    * TRE,TAC,...など色々指標が出てきますが、全て論文に依拠しています。詳しくは
+        "Accuracy Measures for Evaluating Computer Pointing Devices - I.Scott MacKenzie et.al."
+        を参考にしてください
+
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,10 +30,7 @@ import warnings
 
 class Analyzer:
     """
-    Data_storeクラスから座標データ・時間データを受け取り、分析するクラスです。
-    TRE,TAC,...など色々指標が出てきますが、全て論文に依拠しています。詳しくは
-    "Accuracy Measures for Evaluating Computer Pointing Devices - I.Scott MacKenzie et.al."
-    を参考にしてください。
+    Data_storeクラスから座標データ・時間データを受け取り、分析するクラスです。。
 
     Attributes
     ----------

@@ -1,3 +1,11 @@
+"""Data_store.pyの機能に関して
+
+    * Author: S.Uchino
+    * Data_storeクラスはData_analyzerクラスに呼ばれます。
+    * 運用する上でこのクラスのコードを理解する必要はありません
+
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
