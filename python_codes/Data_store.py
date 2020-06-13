@@ -2,27 +2,52 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as st
+from New_tester import Tester
 
 class DataFrames:
     """
-    Get the data from given path. This holds the data as private fields
-    Use getter method to pass the data to the other object.
+    保存されたexcelデータから座標データ等を読み込み、データフレームとして返します。
+
+    Attributes
+    ----------
+    path : str
+        読み込むexcelデータの存在場所
+    data : pandas DataFrame object
+        excelデータをpandasのデータフレームとして読み込む
+    orders : list
+        円をクリックする順番
+    cods : dict
+        カーソル座標データを保存するdict型
+    time : list
+        カーソルのi個目の座標データを取得したときの経過時間
+    flattening_range : int
+        何個のデータごとに平均を取ってノイズを取るか。無視でもOK
     """
 
-    def __init__(self, path):
+    def __init__(self, path, flattening_range=20):
+        """
+        コンストラクタです。インスタンス化した時点でcodsとtimeにデータを格納します。
+
+        Parameters
+        ----------
+        path : str
+            読み込むexcelデータの存在場所
+        flattening_range : int
+            平均を取るデータ点の個数を指定します。
+        """
         self.__path = path
         self.__data = pd.read_excel(self.__path)
-        self.__orders = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
+        self.__orders = Tester.get_orders()
         self.__cods = {'x':[], 'y':[]}
         self.__time = []
+        self.__flattening_range = flattening_range
         self.__cods_calculator()  # 座標データをcodsに格納
         self.__time_calculator()  # 各タスクにかかった時間をtimeに格納
 
 
     def __cods_calculator(self) -> None:
         """
-        get the coordinates from the data
-        @return : a list of a list containining coordinates
+        エクセルデータから(x, y)座標を読み取り、self.__codsに格納します
         """
 
         for i in range(15):
@@ -32,20 +57,19 @@ class DataFrames:
 
             x_index = 'x from ' + str(i) + ' to ' + str(i+1)
             y_index = 'y from ' + str(i) + ' to ' + str(i+1)
-            
+
             x_cods = self.__data[x_index].dropna(how='all')
             y_cods = self.__data[y_index].dropna(how='all')
 
-            flattening_range = 20
-            x_cods = [np.mean(x_cods[j:j+flattening_range]) for j in range(0, len(x_cods)-flattening_range, flattening_range)]
-            y_cods = [np.mean(y_cods[j:j+flattening_range]) for j in range(0, len(y_cods)-flattening_range, flattening_range)]
+            x_cods = [np.mean(x_cods[j:j+self.__flattening_range]) for j in range(0, len(x_cods)-self.__flattening_range, self.__flattening_range)]
+            y_cods = [np.mean(y_cods[j:j+self.__flattening_range]) for j in range(0, len(y_cods)-self.__flattening_range, self.__flattening_range)]
 
             self.__cods['x'].append(x_cods)
             self.__cods['y'].append(y_cods)
 
     def __time_calculator(self) -> None:
         """
-        get the time spent for each task
+        エクセルデータから各座標が取得された時点での経過時間を読み取り、self.__timeに格納
         """
         for i in range(15):
             time_index = 'time from ' + str(i) + ' to ' + str(i+1)
@@ -58,23 +82,18 @@ class DataFrames:
 
     def get_cods(self) -> dict:
         """
-        getter method of the private property of data
-        @return : data
+        座標データのgetterです
         """
         return self.__cods
 
-    def get_orders(self):
-        """
-        getter method of orders for
-        """
-        return self.__orders
-
     def get_time(self):
         """
-        getter method of time spent for each task
+        時間データのgetterです
         """
-
         return self.__time
+
+    def get_orders(self):
+        return self.__orders
 
 
 if __name__ == "__main__":

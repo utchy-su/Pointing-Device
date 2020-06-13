@@ -3,21 +3,62 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as st
 from Data_store import DataFrames
-from New_tester import TaskAxis
+from New_tester import Tester
 import pygame
 from pygame.locals import *
 import sys
+import warnings
 
 class Analyzer:
-    TGT_RADIUS = 30  # radius of the target
+    """
+    Data_storeクラスから座標データ・時間データを受け取り、分析するクラスです。
+    TRE,TAC,...など色々指標が出てきますが、全て論文に依拠しています。詳しくは
+    "Accuracy Measures for Evaluating Computer Pointing Devices - I.Scott MacKenzie et.al."
+    を参考にしてください。
+
+    Attributes
+    ----------
+    data : Data_store object
+        Data_storeクラスのインスタンス
+    cods : dict
+        座標データ
+    order : list
+        円をクリックする順番
+    time : list
+        時間データ
+    tgt_radius : int
+        ターゲット円の半径
+    """
 
     def __init__(self, path):
+        """
+        コンストラクタです。分析するexcelファイルのパスを受け取ります。
+
+        Parameters
+        ----------
+        path : str
+            excelファイルのファイルパスです
+        """
+        warnings.warn("If you are analyzing data of Emi, Kimika... then you need to\
+        to change the radius of the target circle to 30px")
         self.__data = DataFrames(path)
         self.__cods = self.__data.get_cods()
         self.__order = self.__data.get_orders()
         self.__time = self.__data.get_time()
+        self.__tgt_radius = Tester.get_tgt_radius()
+
+        print("Analyzing: " + path)
+        print("target circle's radius is set to: ", self.__tgt_radius)
 
     def _TRE_counter(self):
+        """
+        TREを計算して、リストとしてreturnします。
+
+        Returns
+        -------
+        TRE : list
+            TREを計15回分の格納したlist型
+        """
         TRE = []
 
         for i in range(15):
@@ -48,7 +89,17 @@ class Analyzer:
 
     def __ideal_route(self, i):
         """
-        a helper method to
+        task axisを表すような直線をax + by + c = 0として計算して、各係数a,b,cをreturn
+
+        Parameters
+        ----------
+        i : int
+            今何回目のクリックについて見ているか
+
+        Returns
+        -------
+        a, b, c : int
+            ax + by + c = 0の係数
         """
         x_prev = int(450 + 200 * np.cos(np.pi * self.__order[i] / 8))
         y_prev = int(450 + 200 * np.sin(np.pi * self.__order[i] / 8))
@@ -68,6 +119,10 @@ class Analyzer:
         pygame.init()
 
     def __show_route(self, count):
+        """
+        取得した座標データを利用して軌跡を表示する関数です。見る必要が無い場合はこの関数を
+        コメントアウトしてください。
+        """
         screen_size = (900, 900)
         screen = pygame.display.set_mode(screen_size)
         screen.fill((255, 255, 255))
@@ -78,8 +133,8 @@ class Analyzer:
         x_tgt = int(450 + 200 * np.cos(np.pi * self.__order[count + 1] / 8))
         y_tgt = int(450 + 200 * np.sin(np.pi * self.__order[count + 1] / 8))
 
-        pygame.draw.circle(screen, (255, 0, 0), (x_prev, y_prev), TaskAxis.TGT_RADIUS)
-        pygame.draw.circle(screen, (255, 0, 0), (x_tgt, y_tgt), TaskAxis.TGT_RADIUS)
+        pygame.draw.circle(screen, (255, 0, 0), (x_prev, y_prev), self.__tgt_radius)
+        pygame.draw.circle(screen, (255, 0, 0), (x_tgt, y_tgt), self.__tgt_radius)
         pygame.draw.line(screen, (20, 128, 20), (x_prev, y_prev), (x_tgt, y_tgt), 5)
 
         x_route = self.__cods['x'][count]
@@ -100,6 +155,14 @@ class Analyzer:
 
 
     def _TAC_counter(self):
+        """
+        TACを計算してリストとして格納してreturnします。
+
+        Returns
+        -------
+        TAC : list
+            計15回分のTACをlist型にしてreturn
+        """
         TAC = []
 
         for i in range(15):
@@ -119,6 +182,14 @@ class Analyzer:
         return TAC
 
     def _MV_ME_MO_counter(self):
+        """
+        MV, ME, MOを計算してそれぞれlist型としてreturnします
+
+        Returns
+        -------
+        MV, ME, MO : list
+            各15回分のMV，ME, MOをlistとしてreturn
+        """
         MV = []
         ME = []
         MO = []
@@ -149,6 +220,14 @@ class Analyzer:
         return MV, ME, MO
 
     def _MDC_counter(self):
+        """
+        MDCを計算してlistとしてreturn
+
+        Returns
+        -------
+        MDC : list
+            MDCの各15回分を含むlist型
+        """
 
         MDC = []
 
@@ -176,6 +255,14 @@ class Analyzer:
         return MDC
 
     def _ODC_counter(self):
+        """
+        ODCを計算してlistとしてreturn
+
+        Returns
+        -------
+        ODC : list
+            MDCの各15回分を含むlist型
+        """
         ODC = []
 
         for i in range(15):
@@ -200,6 +287,12 @@ class Analyzer:
         return ODC
 
     def _TP_counter(self):
+        """
+        Throughput(TP)を各15回分計算してlist型としてreturn
+
+        Throughput : list
+            Throughputの各15回分を計算したlist
+        """
         Throughput = []
 
         for i in range(15):
@@ -222,17 +315,22 @@ class Analyzer:
         return Throughput
 
     def check_route(self):
-
+        """
+        計15回分の軌跡を表示できるmethodです。publicにしてあります。
+        """
         for i in range(15):
             self.__show_route(i)
 
-    def __remove_outliers(self, df):
-
-        df = df[df.ME <= 50]
-
-        return df
 
     def main(self):
+        """
+        TRE, TAC,...を計算してpandasのデータフレームに格納します。
+
+        Returns
+        -------
+        df : pandas DataFrame object
+            TRE, TAC等を表っぽいデータとしてreturnします。
+        """
         TRE = self._TRE_counter()
         TAC = self._TAC_counter()
         MV, ME, MO = self._MV_ME_MO_counter()
@@ -251,9 +349,6 @@ class Analyzer:
             'ODC': ODC,
             'Throughput': TP
         })
-
-        # df = self.__remove_outliers(df)
-        # print(df)
 
         return df
 

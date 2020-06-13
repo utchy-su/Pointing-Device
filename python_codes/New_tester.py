@@ -1,3 +1,12 @@
+"""New_tester.pyの機能に関して
+
+    * Author: S.Uchino
+    * Base, TasxAxisの2クラスは完全に無視で構いません。(内容の理解は必要ない)
+    * Testerクラスの使い方さえわかればとりあえずは運用できます。
+
+Todo:
+"""
+
 import pygame
 from pygame.locals import *
 import math
@@ -6,34 +15,29 @@ import pandas as pd
 import pprint
 import pyautogui as pag
 
-
 class Base:
-    """
+    """Baseクラスの機能
+
     ベースの大きい円周を描画とターゲットの小さい円を描画するクラスです。
     コンストラクタでscreenオブジェクトとスクリーンサイズ(width, height)を受け取ります。
 
     Attributes
     ----------
-    TGT_RADIUS : int
-        radius of the target circles
-    TGT_DIAMETER : int
-        diameter of the target circles
-    LAYOUT_RADIUS : int
-        radius of the layout circle
-    LAYOUT_DIAMETER : int
-        diameter of the layout circle
-
-    screen : pygame object
-        スクリーンオブジェクトです。
+    ターゲット円の半径
+        tgt_radius : int
+    tgt_diameter : int
+        ターゲット円の直径
+    layout_radius : int
+        レイアウトの円周の半径
+    layout_diameter : int
+        レイアウトの円周の直径
+    screen : 'pygame object'
+        screenオブジェクト
     center : tuple
-        the (x, y) of screen center
+        スクリーンの中心座標(e.g. (100, 100))
     """
-    TGT_RADIUS = 15  # ターゲットの円の半径
-    TGT_DIAMETER = 30 # ターゲットの円の直径
-    LAYOUT_RADIUS = 200  # ターゲットを配置する大きい円周の半径
-    LAYOUT_DIAMETER = 400  # ターゲットを配置する大きい演習の直径
 
-    def __init__(self, screen, screen_size):
+    def __init__(self, screen, screen_size, tgt_radius, layout_radius):
         """
         コンストラクタです.
 
@@ -49,38 +53,25 @@ class Base:
 
         self.screen = screen  # スクリーンのサイズ(例：(500, 500))
         self.center = (int(screen_size[0]/2), int(screen_size[1]/2))  #スクリーンの中心座標
+        self.__tgt_radius = tgt_radius
+        self.__layout_radius = layout_radius
         self.__draw()
-
-    def __del__(self):
-        """
-        デストラクタです。何もしないので無視でいいです。
-        """
-        pass
-
-    def update(self):
-        """
-        関係ない関数です。無視してくだしあ。
-        """
-        pass
-        #一度だけ描画すれば良いのでupdateは必要ない
 
     def __draw(self):
         """
         この関数で大きい円周を一つ、小さいターゲット円を16個描画します。
         """
         #大きい方の円の描画です。
-        pygame.draw.circle(self.screen, (0, 0, 0), self.center, Base.LAYOUT_RADIUS, 2)
+        pygame.draw.circle(self.screen, (0, 0, 0), self.center, self.__layout_radius, 2)
         font = pygame.font.Font(None, 30)
 
         #小さい方の円を16回描画します。
         for i in range(16):
-            x = int(450 + Base.LAYOUT_RADIUS * math.cos(math.pi * (i/8)))
-            y = int(450 + Base.LAYOUT_RADIUS * math.sin(math.pi * (i/8)))
+            x = int(450 + self.__layout_radius * math.cos(math.pi * (i/8)))
+            y = int(450 + self.__layout_radius * math.sin(math.pi * (i/8)))
 
-            pygame.draw.circle(self.screen, (255, 255, 255), (x, y), Base.TGT_RADIUS)
-            pygame.draw.circle(self.screen, (0, 0, 0), (x, y), Base.TGT_RADIUS, 2)
-            text = font.render(str(TaskAxis.ORDERS[i]), True, (0, 0, 0))
-            self.screen.blit(text, (x, y))
+            pygame.draw.circle(self.screen, (255, 255, 255), (x, y), self.__tgt_radius)
+            pygame.draw.circle(self.screen, (0, 0, 0), (x, y), self.__tgt_radius, 2)
 
 
 class TaskAxis:
@@ -89,14 +80,10 @@ class TaskAxis:
 
     Attributes
     ----------
-    TGT_RADIUS : int
-        ターゲット円の半径。Baseクラスのそれより少し小さくしてあります。
-    TGT_DIAMETER : int
-        ターゲット円の直径。
-    LAYOUT_RADIUS : int
+    tgt_radius : int
+        ターゲット円の半径。
+    layout_radius : int
         レイアウト円の半径。
-    LAYOUT_RIAMETER : int
-        レイアウト円の直径
     ORDERS : list
         右端の円から半時計回りに0, 1, 2, 3,...と番号振ってます。n回目のクリックでORDERS[n]が赤く塗られます。
     count : int
@@ -104,14 +91,8 @@ class TaskAxis:
     screen : pygame object
         pygameのAPIで作成したscreenオブジェクトです
     """
-    TGT_RADIUS = Base.TGT_RADIUS - 3
-    TGT_DIAMETER = Base.TGT_DIAMETER - 6
-    LAYOUT_RADIUS = Base.LAYOUT_RADIUS
-    LAYOUT_DIAMETER = Base.LAYOUT_DIAMETER
 
-    ORDERS = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
-
-    def __init__(self, count, screen):
+    def __init__(self, count, screen, orders, tgt_radius, layout_radius):
         """
         コンストラクタです。self.countの値に応じて__draw()関数を呼び出し、該当する二円を結ぶように線を描画します。
 
@@ -121,11 +102,17 @@ class TaskAxis:
             今何回目のクリックかをTesterクラスから受け取ります。
         screen : pygame object
             screenオブジェクトです
+        tgt_radius : int
+            ターゲット円の半径です。デフォルトは15
+        layout_radius : int
+            レイアウト円の半径です。デフォルトは200
         """
-        if count == len(TaskAxis.ORDERS):
-            raise IndexError("index should be within orderes")
         self.count = count
         self.screen = screen
+        self.__tgt_radius = tgt_radius
+        self.__layout_radius = layout_radius
+        # self.__orders = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
+        self.__orders = orders
         self.__draw()
 
     def __del__(self):
@@ -133,31 +120,30 @@ class TaskAxis:
         デストラクタです。TaskAxisオブジェクトが消えるときにdraw()関数で描画していた線の上に
         白線を描画することで元々あった線を消しています。
         """
-        x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[self.count] / 8)))
-        y_from = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[self.count] / 8)))
+        x_from = int(450 + 200 * math.cos(math.pi * (self.__orders[self.count] / 8)))
+        y_from = int(450 + 200 * math.sin(math.pi * (self.__orders[self.count] / 8)))
 
-        x_to = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[self.count+1] / 8)))
-        y_to = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[self.count+1] / 8)))
+        x_to = int(450 + 200 * math.cos(math.pi * (self.__orders[self.count+1] / 8)))
+        y_to = int(450 + 200 * math.sin(math.pi * (self.__orders[self.count+1] / 8)))
 
-        pygame.draw.circle(self.screen, (255, 255, 255), (x_from, y_from), TaskAxis.TGT_RADIUS)
-        pygame.draw.circle(self.screen, (255, 255, 255), (x_to, y_to), TaskAxis.TGT_RADIUS)
+        pygame.draw.circle(self.screen, (255, 255, 255), (x_from, y_from), self.__tgt_radius-3)
+        pygame.draw.circle(self.screen, (255, 255, 255), (x_to, y_to), self.__tgt_radius-3)
         pygame.draw.line(self.screen, (255, 255, 255), (x_from, y_from), (x_to, y_to), 5)
-        pygame.draw.circle(self.screen, (0, 0, 0), (x_from, y_from), Base.TGT_RADIUS, 2)
-        pygame.draw.circle(self.screen, (0, 0, 0), (x_to, y_to), Base.TGT_RADIUS, 2)
-
+        pygame.draw.circle(self.screen, (0, 0, 0), (x_from, y_from), self.__tgt_radius, 2)
+        pygame.draw.circle(self.screen, (0, 0, 0), (x_to, y_to), self.__tgt_radius, 2)
 
     def __draw(self):
         """
         self.countの値に応じて該当する二円を結ぶように線を描画します。
         """
-        x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[self.count] / 8)))
-        y_from = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[self.count] / 8)))
+        x_from = int(450 + 200 * math.cos(math.pi * (self.__orders[self.count] / 8)))
+        y_from = int(450 + 200 * math.sin(math.pi * (self.__orders[self.count] / 8)))
 
-        x_to = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[self.count+1] / 8)))
-        y_to = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[self.count+1] / 8)))
+        x_to = int(450 + 200 * math.cos(math.pi * (self.__orders[self.count+1] / 8)))
+        y_to = int(450 + 200 * math.sin(math.pi * (self.__orders[self.count+1] / 8)))
 
-        pygame.draw.circle(self.screen, (255, 0, 0), (x_from, y_from), TaskAxis.TGT_RADIUS)
-        pygame.draw.circle(self.screen, (255, 0, 0), (x_to, y_to), TaskAxis.TGT_RADIUS)
+        pygame.draw.circle(self.screen, (255, 0, 0), (x_from, y_from), self.__tgt_radius)
+        pygame.draw.circle(self.screen, (255, 0, 0), (x_to, y_to), self.__tgt_radius)
         pygame.draw.line(self.screen, (20, 128, 20), (x_from, y_from), (x_to, y_to), 5)
 
 
@@ -168,6 +154,14 @@ class Tester:
 
     Attributes
     ----------
+    TGT_RADIUS : int
+        ターゲット円の半径です
+    LAYOUT_RADIUS : int
+        レイアウト円の半径です
+    ALLOWABLE_ERROR : int
+        内野が私用で使ってます。無視してください。
+    ORDERS : list
+        クリックする円の順番をリストとして保存しています。
     x : dict
         {1: [100, 111], 2:[2, 100, ..]}というように、n回目のクリックをするまでに
         カーソルが辿った軌跡のx座標を記録します
@@ -179,11 +173,12 @@ class Tester:
         記録用のexcelファイルの保存場所です。
     """
 
-    TGT_RADIUS = 15
-    TGT_DIAMETER = 30
-    ALLOWABLE_ERROR = 100
+    __TGT_RADIUS = 15
+    __LAYOUT_RADIUS = 200
+    __ALLOWABLE_ERROR = 100
+    __ORDERS = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
 
-    def __init__(self, path):
+    def __init__(self, path, screen_size=(900, 900)):
         """
         x, y, 経過時間を保持するdictを空にして初期化します。
         excelファイル保存用のパスをstrで取得します
@@ -192,12 +187,93 @@ class Tester:
         ----------
         path : str
             excelファイル保存用のパスのstr
+        screen_size : tuple
+            実験用ウインドウのサイズを指定してください。デフォルトでは(900, 900)
         """
         self.x = {}
         self.y = {}
         self.time = {}
-
+        self.__base = None
+        self.__test = None
+        self.__screen_size = screen_size
         self.path = path
+
+    @staticmethod
+    def get_tgt_radius():
+        """
+        ターゲット円の半径のgetter
+        """
+        return Tester.__TGT_RADIUS
+
+    @staticmethod
+    def get_layout_radius():
+        """
+        レイアウト円の半径のgetter
+        """
+        return Tester.__LAYOUT_RADIUS
+
+    @staticmethod
+    def get_allowable_error():
+        """
+        許容できるMEの値のGetter
+        """
+        return Tester.__ALLOWABLE_ERROR
+
+    @staticmethod
+    def get_orders():
+        """
+        クリックする円の順番のgetter
+        """
+        return Tester.__ORDERS
+
+    @staticmethod
+    def set_tgt_radius(rad):
+        """
+        ターゲット円の半径のsetter
+        """
+        Tester.__TGT_RADIUS = rad
+
+    @staticmethod
+    def set_layout_radius(rad):
+        """
+        レイアウト円の半径のsetter
+        """
+        Tester.__LAYOUT_RADIUS = rad
+
+    @staticmethod
+    def set_orders(new_orders):
+        """
+        クリックする円の順番のsetter
+        """
+        if len(Tester.__ORDERS) != len(new_orders):
+            raise Exception("すべての円を一度はクリックするように順番を設定してください")
+        Tester.__ORDERS = new_orders
+
+    def __get_from_and_to(self, counter):
+        """
+        出発地->目的地のx,y座標を求めます
+
+        Parameters
+        ----------
+        counter : int
+            今何回目のクリックかを示す
+
+        Returns:
+            x_from : int
+            y_from : int
+            x_to : int
+            y_to : int
+        """
+
+        orders = Tester.__ORDERS
+        x_from = int(450 + 200 * math.cos(math.pi * (orders[counter] / 8)))
+        y_from = int(450 + 200 * math.sin(math.pi * (orders[counter] / 8)))
+
+        # task axis に沿ってマウスカーソルを動かす
+        x_to = int(450 + 200 * math.cos(math.pi * (orders[counter + 1] / 8)))
+        y_to = int(450 + 200 * math.sin(math.pi * (orders[counter + 1] / 8)))
+
+        return x_from, y_from, x_to, y_to
 
     def __isInCircle(self, counter, x, y) -> bool:
         """
@@ -217,12 +293,11 @@ class Tester:
         ------
             カーソルが円内ならTrue. False otherwise.
         """
-        x_to = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter + 1] / 8)))
-        y_to = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter + 1] / 8)))
+        _, _, x_to, y_to = self.__get_from_and_to(counter)
 
         distance = int(math.sqrt((x-x_to)**2 + (y-y_to)**2))
 
-        return distance <= Tester.TGT_RADIUS
+        return distance <= Tester.get_tgt_radius()
 
     def __saveToExcel(self):
         """
@@ -253,13 +328,7 @@ class Tester:
         """
         ユニットテスト用の関数。無視でいいです。
         """
-        x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter] / 8)))
-        y_from = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter] / 8)))
-
-        # task axis に沿ってマウスカーソルを動かす
-        x_to = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter + 1] / 8)))
-        y_to = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter + 1] / 8)))
-
+        x_from, y_from, x_to, y_to = self.__get_from_and_to(counter)
         x_mid = int((x_from + x_to) / 2)
         y_mid = int((y_from + y_to) / 2)
 
@@ -284,12 +353,7 @@ class Tester:
         """
         内野が私用で使ってます。無視でいいです。
         """
-        x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter] / 8)))
-        y_from = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter] / 8)))
-
-        # task axis に沿ってマウスカーソルを動かす
-        x_to = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter + 1] / 8)))
-        y_to = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter + 1] / 8)))
+        x_from, y_from, x_to, y_to = self.__get_from_and_to(counter)
 
         a = -(y_to - y_from)
         b = (x_to - x_from)
@@ -297,26 +361,21 @@ class Tester:
 
         dist = abs(a*x + b*y + c)/math.sqrt(a**2 + b**2)
 
-        return dist > Tester.ALLOWABLE_ERROR
+        return dist > Tester.__ALLOWABLE_ERROR
 
 
     def main(self):
         """
         エントリーポイントです。
-
-        Notes
-        -----
-        1. スクリーンサイズはここで指定してください。
         """
-        screen_size = (900, 900)  # スクリーンサイズを指定
         pygame.init()
-        screen = pygame.display.set_mode(screen_size)
+        screen = pygame.display.set_mode(self.__screen_size)
         screen.fill((255, 255, 255))  # スクリーンの色を白に
         pygame.display.set_caption(u"new tester without serial com")
 
 
         # ベースになるレイアウト円とターゲット円を描画します。
-        base = Base(screen, screen_size)
+        self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
         counter = 0 # click counter
         test = None
 
@@ -327,7 +386,7 @@ class Tester:
 
         # プログラムを開始します。最初のなぞり経路を描画します。
         isClicked = False
-        test = TaskAxis(counter, screen)
+        self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
 
         # isClickedがFalse、すなわち最初の円をクリックしていない限りプログラムが
         # 進行しないようにしてあります。
@@ -370,7 +429,7 @@ class Tester:
             for event in pygame.event.get():
                 # もしウインドウ右上のxボタンが押されたらプログラムを終了
                 if event.type == QUIT:
-                    del test
+                    del self.__test
                     pygame.display.update()
                     pygame.time.wait(3000)
                     sys.exit()
@@ -387,7 +446,7 @@ class Tester:
                         self.x[counter] = x_record
                         self.y[counter] = y_record
                         counter += 1
-                        del test
+                        del self.__test
                         self.__saveToExcel()
                         return
 
@@ -400,8 +459,8 @@ class Tester:
                         x_record = []
                         y_record = []
                         counter += 1
-                        del test # counter回目に対応するTaskAxisを消す
-                        test = TaskAxis(counter, screen)
+                        del self.__test # counter回目に対応するTaskAxisを消す
+                        self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
 
 
 if __name__ == "__main__":
