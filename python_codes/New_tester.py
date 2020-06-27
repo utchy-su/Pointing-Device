@@ -23,8 +23,8 @@ class Base:
 
     Attributes
     ----------
-    ターゲット円の半径
-        tgt_radius : int
+    tgt_radius : int
+        ターゲット円の半径
     tgt_diameter : int
         ターゲット円の直径
     layout_radius : int
