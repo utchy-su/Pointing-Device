@@ -4,11 +4,11 @@
 #define RAD_TO_DEG 180/PI
 #define DEG_TO_RAD PI/180
 
-#define IndicateMode 9
+#define IndicateSensitivity 9
 
-#define IndicateLow 10
-#define IndicateMid 11
-#define IndicateHigh 12
+#define IndicateOff 10
+#define IndicateLinear 11
+#define IndicateNonLinear 12
 
 int16_t axRaw, ayRaw, azRaw, gxRaw, gyRaw, gzRaw, temperature; //raw data given by the sensor
 unsigned long t; //the time since the beginning of the loop() function
@@ -20,8 +20,8 @@ int move_y; //relative distance to move in Y-axis
 float acc_x, acc_y, acc_z; //raw data from the sensor
 float acc_angX, acc_angY, acc_angZ; //calculated angles
 unsigned long dt; //duration for a single loop
-int s; // number of times the user pushed the switch 1
-int f; // number of times the user pushed the switch 2
+int sensitivity; // number of times the user pushed the switch 1
+int function; // number of times the user pushed the switch 2
 float Xoffset, Yoffset;
 float Xmax = (29 + 29)/2;
 float Ymax = (30 + 17)/2;

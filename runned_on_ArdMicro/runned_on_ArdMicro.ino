@@ -30,19 +30,19 @@ void setup() {
   calibrate();
 
   //Initialize the all LED
-  pinMode(IndicateMode, OUTPUT); //9番ピンを初期化
-  pinMode(IndicateLow, OUTPUT);  //10番ピンを初期化
-  pinMode(IndicateMid, OUTPUT);  //11番ピンを初期化
-  pinMode(IndicateHigh, OUTPUT);  //12番ピンを初期化
-  digitalWrite(IndicateMode, HIGH);
-  digitalWrite(IndicateLow, HIGH);
-  digitalWrite(IndicateMid, HIGH);
-  digitalWrite(IndicateHigh, HIGH);
+  pinMode(IndicateSensitivity, OUTPUT); //9番ピンを初期化
+  pinMode(IndicateOff, OUTPUT);  //10番ピンを初期化
+  pinMode(IndicateLinear, OUTPUT);  //11番ピンを初期化
+  pinMode(IndicateNonLinear, OUTPUT);  //12番ピンを初期化
+  digitalWrite(IndicateSensitivity, HIGH);
+  digitalWrite(IndicateOff, HIGH);
+  digitalWrite(IndicateLinear, HIGH);
+  digitalWrite(IndicateNonLinear, HIGH);
   delay(1000);
-  digitalWrite(IndicateMode, LOW);
-  digitalWrite(IndicateLow, LOW);
-  digitalWrite(IndicateMid, LOW);
-  digitalWrite(IndicateHigh, LOW);
+  digitalWrite(IndicateSensitivity, LOW);
+  digitalWrite(IndicateOff, LOW);
+  digitalWrite(IndicateLinear, LOW);
+  digitalWrite(IndicateNonLinear, LOW);
   //起動時にすべてのLEDが一瞬点灯する
 }
 
@@ -63,26 +63,26 @@ void loop() {
   acc_x = axRaw / 16384.0; //convert raw data into m/s^2
   acc_y = ayRaw / 16384.0;
   acc_z = azRaw / 16384.0;
-
+  
   acc_angX = atan2(acc_y, acc_x) * 360 / 2.0 / PI; //calculatete the tilt angle about X-axis
   //Serial.print(acc_angX); Serial.print(",");
   acc_angY = atan2(acc_z, acc_x) * 360 / 2.0 / PI; //calculate the tilt angle about Y-axis
   //Serial.println(acc_angY);
 
-  if (digitalRead(4) == LOW) { //if the left switch is pushed then s+=1
-    s += 1;
-    if (s > 2) s = 0;
+  if (digitalRead(4) == LOW) { //if the left switch is pushed then sensitiity+=1
+    sensitivity++;
+    if (sensitivity > 5) sensitivity = 0;
     delay(100);
     while (digitalRead(4) == LOW) {}
-    twinkle(1);
+    indicateCurrentSensitivity();
   }
 
-  if (digitalRead(5) == LOW) { //if the right switch is pushed then f+=1
-    f += 1;
-    if (f > 9) f = 0;
+  if (digitalRead(5) == LOW) { //if the right switch is pushed then function+=1
+    function += 1;
+    if (function > 2) function = 0;
     delay(100);
     while (digitalRead(5) == LOW) {}
-    twinkle(3);
+    indicateCurrentFunction();
     calibrate();
   }
   distinguisher();
@@ -95,10 +95,38 @@ void loop() {
 
 //1: distinguisher
 //2: sensitivity_changer
+void indicateCurrentFunction() {
+  if (function == 0) {
+      digitalWrite(IndicateOff, HIGH);
+      delay(1000);
+      digitalWrite(IndicateOff, LOW);
+    }
+   else if (function == 1) {
+      digitalWrite(IndicateLinear, HIGH);
+      delay(1000);
+      digitalWrite(IndicateLinear, LOW);
+    }
+   else {
+      digitalWrite(IndicateNonLinear, HIGH);
+      delay(1000);
+      digitalWrite(IndicateNonLinear, LOW);
+    }
+  }
+
+void indicateCurrentSensitivity() {
+    for (int i = 0; i < sensitivity; i++) {
+        digitalWrite(IndicateSensitivity, HIGH);
+        delay(100);
+        digitalWrite(IndicateSensitivity, LOW);
+        delay(100);
+      }
+  }
+
+/*
 void twinkle(int func_name) {
   if (func_name == 1) {
     int n = IndicateMode; //light LED1 on
-    int rep_num =  s;
+    int rep_num =  sensitivity;
     Serial.println(n);
     for (int i = 0; i <= s; i++) {
       digitalWrite(n, HIGH);
@@ -109,18 +137,18 @@ void twinkle(int func_name) {
   }
 
   if (func_name == 2) {
-    int rep_num = f;
-    if (f == 0) {
+    int rep_num = s;
+    if (s == 0) {
       digitalWrite(IndicateLow, HIGH);
       delay(1000);
       digitalWrite(IndicateLow, LOW);
     }
-    if (f == 1) {
+    if (s == 1) {
       digitalWrite(IndicateMid, HIGH);
       delay(1000);
       digitalWrite(IndicateMid, LOW);
     }
-    if (f == 2) {
+    if (s == 2) {
       digitalWrite(IndicateHigh, HIGH);
       delay(1000);
       digitalWrite(IndicateHigh, LOW);
@@ -139,22 +167,23 @@ void twinkle(int func_name) {
     }
   }
 }
+*/
 
 void distinguisher() {
   float X = acc_angY - Yoffset;
   float Y = acc_angX - Xoffset;
   //this is reversed because the sensor is on its side
-  if (s == 0) { //OFF MODE
+  if (function == 0) { //OFF MODE
     move_x = 0;
     move_y = 0;
   }
 
-  if (s == 1) { //Linear Mode
+  if (function == 1) { //Linear Mode
     move_x = (int) (kx *  X / Xmax);
     move_y = (int) (ky * -Y / Ymax);
   }
 
-  if (s == 2) { //non-linear mode
+  if (function == 2) { //non-linear mode
     if (0 <= X && X < Xmax) {
       move_x = (int) (kx * (1 - sin(X * DEG_TO_RAD) / (X * DEG_TO_RAD)) / Cx);
     } else if (-Xmax < X && X < 0) {
@@ -204,7 +233,7 @@ void calibrate() {
 }
 
 void sensitivity_changer() {
-  kx = (f + 1) * 10;
-  ky = (f + 1) * 10;
+  kx = (sensitivity + 1) * 10;
+  ky = (sensitivity + 1) * 10;
   delay(5);
 }
