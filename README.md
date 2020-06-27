@@ -8,3 +8,5 @@ Please use this program freely.
 Please let me know before you use this as a reference.
 
 For the further information, please reference to https://qiita.com/intel_outside/items/37c5ff45622aba352dfa
+
+Thank you for reading!
