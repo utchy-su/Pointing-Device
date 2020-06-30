@@ -376,6 +376,7 @@ class Tester:
         # ベースになるレイアウト円とターゲット円を描画します。
         self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
         counter = 0 # click counter
+        trajectory_counter = 0
         test = None
 
         # i-1回目->i回目のクリックの間のカーソルの動きを一時的に保存します。
@@ -419,6 +420,9 @@ class Tester:
             x_record.append(x) #カーソル座標を記録
             y_record.append(y) #カーソル座標を記録
 
+
+            pygame.draw.circle(screen, (0, 0, 0), (x, y), 2, 0)
+
             # self.__testMouseMove(counter)
             # if i == 5:
             #     i = 1
@@ -458,6 +462,8 @@ class Tester:
                         x_record = []
                         y_record = []
                         counter += 1
+                        screen.fill((255, 255, 255))
+                        self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
                         del self.__test # counter回目に対応するTaskAxisを消す
                         self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
 
