@@ -172,7 +172,7 @@ class Tester:
         記録用のexcelファイルの保存場所です。
     """
 
-    __TGT_RADIUS = 15
+    __TGT_RADIUS = 30
     __LAYOUT_RADIUS = 200
     __ALLOWABLE_ERROR = 100
     __ORDERS = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
