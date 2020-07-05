@@ -4,7 +4,9 @@
     * Base, TasxAxisの2クラスは完全に無視で構いません。(内容の理解は必要ない)
     * Testerクラスの使い方さえわかればとりあえずは運用できます。
 
-Todo:
+TODO:
+    * Clicking function by dwelling on the target
+    * Tracking guidance functionality
 """
 
 import pygame
@@ -172,10 +174,11 @@ class Tester:
         記録用のexcelファイルの保存場所です。
     """
 
-    __TGT_RADIUS = 15
+    __TGT_RADIUS = 30
     __LAYOUT_RADIUS = 200
     __ALLOWABLE_ERROR = 100
     __ORDERS = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
+    __DWELLING_TIME = 1000 #ms
 
     def __init__(self, path, screen_size=(900, 900)):
         """
@@ -362,7 +365,6 @@ class Tester:
 
         return dist > Tester.__ALLOWABLE_ERROR
 
-
     def main(self):
         """
         エントリーポイントです。
@@ -376,12 +378,16 @@ class Tester:
         # ベースになるレイアウト円とターゲット円を描画します。
         self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
         counter = 0 # click counter
+        trajectory_counter = 0
         test = None
 
         # i-1回目->i回目のクリックの間のカーソルの動きを一時的に保存します。
         time_record = []
         x_record = []
         y_record = []
+
+        # record the first time when the cursor entered into the target
+        first_entry = None # not None when the cursor entered. None otherwise
 
         # プログラムを開始します。最初のなぞり経路を描画します。
         isClicked = False
@@ -404,26 +410,38 @@ class Tester:
             now = pygame.time.get_ticks() #現時点での経過時間を取得
             x, y = pygame.mouse.get_pos() #現時点でのカーソル座標を取得
 
-            # ここから358行目まで内野が私用で使ってるコードなので無視でいいです
-            """
+            # reset the position if the cursor drifts away too much
             if self.__isDriftingAway(x, y, counter):
-                time_record = []
-                x_record = []
-                y_record = []
-                x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter] / 8)))
-                y_from = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter] / 8)))
+                x_from = int(450 + 200 * math.cos(math.pi * (Tester.__ORDERS[counter] / 8)))
+                y_from = int(450 + 200 * math.sin(math.pi * (Tester.__ORDERS[counter] / 8)))
                 pygame.mouse.set_pos(x_from, y_from)
-            """
 
+            # append the trajectory to the record
             time_record.append(now) #経過時間を記録
             x_record.append(x) #カーソル座標を記録
             y_record.append(y) #カーソル座標を記録
+
+            # draw the trajectory of the cursor
+            pygame.draw.circle(screen, (0, 0, 0), (x, y), 2, 0)
 
             # self.__testMouseMove(counter)
             # if i == 5:
             #     i = 1
             # else:
             #     i += 1
+
+            # カーソルが一定時間以上ターゲット円内で静止しないとクリックとしてみなされない
+            if self.__isInCircle(counter, x, y):
+                if first_entry is not None:
+                    # first_entryとnowを比較
+                    dwelling_time = now - first_entry #millisec
+                    if dwelling_time >= Tester.__DWELLING_TIME:
+                        pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN))
+                else:
+                    first_entry = pygame.time.get_ticks()
+            else:
+                first_entry = None  # set first_entry to None if the cursor is out of targets
+
 
             for event in pygame.event.get():
                 # もしウインドウ右上のxボタンが押されたらプログラムを終了
@@ -458,6 +476,8 @@ class Tester:
                         x_record = []
                         y_record = []
                         counter += 1
+                        screen.fill((255, 255, 255))  # whiting out the screen
+                        self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS) # draw the circles
                         del self.__test # counter回目に対応するTaskAxisを消す
                         self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
 
