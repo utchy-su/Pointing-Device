@@ -260,6 +260,20 @@ class Tester:
             raise Exception("すべての円を一度はクリックするように順番を設定してください")
         Tester.__ORDERS = new_orders
 
+    @staticmethod
+    def get_dwelling_time():
+        """
+        クリック判別の閾値時間のgetter
+        """
+        return Tester.__DWELLING_TIME
+
+    @staticmethod
+    def set_dwelling_time(new_time):
+        """
+        クリック判別の閾値時間のsetter
+        """
+        Tester.__DWELLING_TIME = new_time
+
     def __get_from_and_to(self, counter):
         """
         出発地->目的地のx,y座標を求めます
