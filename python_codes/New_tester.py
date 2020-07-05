@@ -5,8 +5,7 @@
     * Testerクラスの使い方さえわかればとりあえずは運用できます。
 
 TODO:
-    * Clicking function by dwelling on the target
-    * Tracking guidance functionality
+    * ターゲット軸の色は要検討
 """
 
 import pygame
@@ -94,7 +93,7 @@ class TaskAxis:
         pygameのAPIで作成したscreenオブジェクトです
     """
 
-    def __init__(self, count, screen, orders, tgt_radius, layout_radius):
+    def __init__(self, count, screen, orders, tgt_radius, layout_radius, allowable_err):
         """
         コンストラクタです。self.countの値に応じて__draw()関数を呼び出し、該当する二円を結ぶように線を描画します。
 
@@ -114,6 +113,7 @@ class TaskAxis:
         self.__tgt_radius = tgt_radius
         self.__layout_radius = layout_radius
         self.__orders = orders
+        self.__allowable_err = allowable_err
         self.__draw()
 
     def __del__(self):
@@ -143,9 +143,10 @@ class TaskAxis:
         x_to = int(450 + 200 * math.cos(math.pi * (self.__orders[self.count+1] / 8)))
         y_to = int(450 + 200 * math.sin(math.pi * (self.__orders[self.count+1] / 8)))
 
+        pygame.draw.line(self.screen, (20, 128, 20), (x_from, y_from), (x_to, y_to), self.__allowable_err*2)
+        pygame.draw.line(self.screen, (0, 0, 0), (x_from, y_from), (x_to, y_to), 5)
         pygame.draw.circle(self.screen, (255, 0, 0), (x_from, y_from), self.__tgt_radius)
         pygame.draw.circle(self.screen, (255, 0, 0), (x_to, y_to), self.__tgt_radius)
-        pygame.draw.line(self.screen, (20, 128, 20), (x_from, y_from), (x_to, y_to), 5)
 
 
 class Tester:
@@ -176,7 +177,7 @@ class Tester:
 
     __TGT_RADIUS = 30
     __LAYOUT_RADIUS = 200
-    __ALLOWABLE_ERROR = 100
+    __ALLOWABLE_ERROR = 30
     __ORDERS = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
     __DWELLING_TIME = 1000 #ms
 
@@ -391,7 +392,7 @@ class Tester:
 
         # プログラムを開始します。最初のなぞり経路を描画します。
         isClicked = False
-        self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
+        self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS, Tester.__ALLOWABLE_ERROR)
 
         # isClickedがFalse、すなわち最初の円をクリックしていない限りプログラムが
         # 進行しないようにしてあります。
@@ -479,7 +480,7 @@ class Tester:
                         screen.fill((255, 255, 255))  # whiting out the screen
                         self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS) # draw the circles
                         del self.__test # counter回目に対応するTaskAxisを消す
-                        self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
+                        self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS, Tester.__ALLOWABLE_ERROR)
 
 
 if __name__ == "__main__":
