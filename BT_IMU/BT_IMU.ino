@@ -1,11 +1,7 @@
-#include <SoftwareSerial.h>
 #include <Wire.h>
 
 #define RAD_TO_DEG 180/PI
 #define DEG_TO_RAD PI/180
-
-#define tx 7
-#define rx 6
 
 #define LED 13
 
@@ -13,11 +9,9 @@ int xRaw, yRaw, zRaw;
 int xAcc, yAcc, zAcc;
 int roll, pitch;
 
-SoftwareSerial btSerial(rx, tx);
 
 void setup() {
   // put your setup code here, to run once:
-  /*
   Wire.begin();
 
   Wire.beginTransmission(0x68);
@@ -39,19 +33,18 @@ void setup() {
   Wire.write(0x1A);
   Wire.write(0x05);
   Wire.endTransmission();
-  */
+  
   pinMode(LED, OUTPUT);
   digitalWrite(LED, HIGH);
   delay(1000);
   digitalWrite(LED, LOW);
   
-  btSerial.begin(9600);
-  //Serial.begin(9600);
+  //btSerial.begin(9600);
+  Serial.begin(9600);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  /*
   Wire.beginTransmission(0x68);
   Wire.write(0x3B);
   Wire.endTransmission();
@@ -65,23 +58,24 @@ void loop() {
   yRaw = Wire.read() << 8 | Wire.read();
   zRaw = Wire.read() << 8 | Wire.read();
 
+  Wire.endTransmission();
+
   roll = atan2(yRaw, xRaw) * RAD_TO_DEG;
   pitch = atan2(zRaw, xRaw) * RAD_TO_DEG;
 
   int xMove = convertToRange(roll);
   int yMove = convertToRange(pitch);
-  */
-  btSerial.write((byte)0xFD);
-  btSerial.write((byte)0x05);
-  btSerial.write((byte)0x02);
+  
+  Serial.write((byte)0xFD);
+  Serial.write((byte)0x05);
+  Serial.write((byte)0x02);
   //Serial.print(xMove); Serial.print("\t"); Serial.println(yMove);
-  btSerial.write((byte)0x00);
-  btSerial.write((byte)0x0A);
-  btSerial.write((byte)0x0A);
-  btSerial.write((byte)0x00);
+  Serial.write((byte)0x00);
+  Serial.write((byte)xMove);
+  Serial.write((byte)yMove);
+  Serial.write((byte)0x00);
 
   //digitalWrite(LED, HIGH);
-  delay(50);
   //digitalWrite(LED, LOW);
 }
 
