@@ -405,22 +405,16 @@ class Tester:
             now = pygame.time.get_ticks() #現時点での経過時間を取得
             x, y = pygame.mouse.get_pos() #現時点でのカーソル座標を取得
 
-            # ここから358行目まで内野が私用で使ってるコードなので無視でいいです
-            """
+            # reset the position if the cursor drifts away too much
             if self.__isDriftingAway(x, y, counter):
-                time_record = []
-                x_record = []
-                y_record = []
-                x_from = int(450 + 200 * math.cos(math.pi * (TaskAxis.ORDERS[counter] / 8)))
-                y_from = int(450 + 200 * math.sin(math.pi * (TaskAxis.ORDERS[counter] / 8)))
+                x_from = int(450 + 200 * math.cos(math.pi * (Tester.__ORDERS[counter] / 8)))
+                y_from = int(450 + 200 * math.sin(math.pi * (Tester.__ORDERS[counter] / 8)))
                 pygame.mouse.set_pos(x_from, y_from)
-            """
 
+            # draw the trajectory of the cursor
             time_record.append(now) #経過時間を記録
             x_record.append(x) #カーソル座標を記録
             y_record.append(y) #カーソル座標を記録
-
-
             pygame.draw.circle(screen, (0, 0, 0), (x, y), 2, 0)
 
             # self.__testMouseMove(counter)
@@ -462,8 +456,8 @@ class Tester:
                         x_record = []
                         y_record = []
                         counter += 1
-                        screen.fill((255, 255, 255))
-                        self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
+                        screen.fill((255, 255, 255))  # whiting out the screen
+                        self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS) # draw the circles
                         del self.__test # counter回目に対応するTaskAxisを消す
                         self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS)
 
