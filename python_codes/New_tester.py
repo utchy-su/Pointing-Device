@@ -107,6 +107,11 @@ class TaskAxis:
             ターゲット円の半径です。デフォルトは15
         layout_radius : int
             レイアウト円の半径です。デフォルトは200
+        orders : list
+            クリックする円の順番を格納するリストです
+        allowable_err : int
+            なぞり経路からのズレの許容範囲です。
+            この範囲を示すように緑の帯を描画します。これを超えるとカーソルがもとのターゲットに戻されます。
         """
         self.count = count
         self.screen = screen
@@ -164,6 +169,9 @@ class Tester:
         内野が私用で使ってます。無視してください。
     ORDERS : list
         クリックする円の順番をリストとして保存しています。
+    DWELLING_TIME : int
+        ターゲット内にDWELLING_TIME(ms)静止するとクリック扱いになります。
+        単位がミリ秒であることに注意してください。
     x : dict
         {1: [100, 111], 2:[2, 100, ..]}というように、n回目のクリックをするまでに
         カーソルが辿った軌跡のx座標を記録します
@@ -437,6 +445,8 @@ class Tester:
                     # first_entryとnowを比較
                     dwelling_time = now - first_entry #millisec
                     if dwelling_time >= Tester.__DWELLING_TIME:
+                        # dwelling_time以上ターゲット内に静止しているならば、
+                        # eventにMOUSEBUTTONDOWNを追加することでクリック扱いになります
                         pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN))
                 else:
                     first_entry = pygame.time.get_ticks()
