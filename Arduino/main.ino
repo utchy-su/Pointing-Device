@@ -48,9 +48,9 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
+
   t = millis();  //get the current time at the beggining of the loop
-  
+
   Wire.beginTransmission(0x68);
   Wire.write(0x3B);
   Wire.endTransmission();
@@ -63,11 +63,13 @@ void loop() {
   acc_x = axRaw / 16384.0; //convert raw data into m/s^2
   acc_y = ayRaw / 16384.0;
   acc_z = azRaw / 16384.0;
-  
+
   acc_angX = atan2(acc_y, acc_x) * 360 / 2.0 / PI; //calculatete the tilt angle about X-axis
   //Serial.print(acc_angX); Serial.print(",");
   acc_angY = atan2(acc_z, acc_x) * 360 / 2.0 / PI; //calculate the tilt angle about Y-axis
   //Serial.println(acc_angY);
+
+  Serial.print(acc_angX); Serial.print(" ; "); Serial.println("acc_angY");
 
   if (digitalRead(4) == LOW) { //if the left switch is pushed then sensitiity+=1
     sensitivity++;
@@ -229,7 +231,7 @@ void calibrate() {
   }
   Xoffset = Xcalib/100;
   Yoffset = Ycalib/100; //an average value for 100 iteration
-  
+
 }
 
 void sensitivity_changer() {
