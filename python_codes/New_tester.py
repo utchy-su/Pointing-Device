@@ -15,6 +15,36 @@ import sys
 import pandas as pd
 import pprint
 import pyautogui as pag
+import serial
+
+class Serial:
+    """
+    シリアル通信で角度を取得するクラス
+
+    Attributes
+    ----------
+    ser : pySerial obj
+    """
+
+    def __init__(self, com="COM19", baud=9600):
+        try:
+            self.ser = serial.Serial(com, baud, timeout=None)
+        except:
+            self.ser = None
+
+    def read(self):
+        if self.ser is None:
+            #テスト目的です
+            return 10, 10
+        line = self.ser.readline()
+        line = line.decode().split(";")
+        print(line)
+
+        roll = line[0]
+        pitch = line[1]
+
+        return roll, pitch
+
 
 class Base:
     """Baseクラスの機能
@@ -149,7 +179,7 @@ class TaskAxis:
         y_to = int(450 + 200 * math.sin(math.pi * (self.__orders[self.count+1] / 8)))
 
         pygame.draw.line(self.screen, (20, 128, 20), (x_from, y_from), (x_to, y_to), self.__allowable_err*2)
-        pygame.draw.line(self.screen, (0, 0, 0), (x_from, y_from), (x_to, y_to), 5)
+        pygame.draw.line(self.screen, (255, 255, 255), (x_from, y_from), (x_to, y_to), 5)
         pygame.draw.circle(self.screen, (255, 0, 0), (x_from, y_from), self.__tgt_radius)
         pygame.draw.circle(self.screen, (255, 0, 0), (x_to, y_to), self.__tgt_radius)
 
@@ -204,55 +234,58 @@ class Tester:
         self.x = {}
         self.y = {}
         self.time = {}
+        self.roll = {}
+        self.pitch = {}
         self.__base = None
         self.__test = None
         self.__screen_size = screen_size
         self.path = path
+        self.ser = Serial()
 
     @staticmethod
-    def get_tgt_radius():
+    def getTgtRadius():
         """
         ターゲット円の半径のgetter
         """
         return Tester.__TGT_RADIUS
 
     @staticmethod
-    def get_layout_radius():
+    def getLayoutRadius():
         """
         レイアウト円の半径のgetter
         """
         return Tester.__LAYOUT_RADIUS
 
     @staticmethod
-    def get_allowable_error():
+    def getAllowableError():
         """
         許容できるMEの値のGetter
         """
         return Tester.__ALLOWABLE_ERROR
 
     @staticmethod
-    def get_orders():
+    def getOrders():
         """
         クリックする円の順番のgetter
         """
         return Tester.__ORDERS
 
     @staticmethod
-    def set_tgt_radius(rad):
+    def setTgtRadius(rad):
         """
         ターゲット円の半径のsetter
         """
         Tester.__TGT_RADIUS = rad
 
     @staticmethod
-    def set_layout_radius(rad):
+    def setLayoutRadius(rad):
         """
         レイアウト円の半径のsetter
         """
         Tester.__LAYOUT_RADIUS = rad
 
     @staticmethod
-    def set_orders(new_orders):
+    def setOrders(new_orders):
         """
         クリックする円の順番のsetter
         """
@@ -261,20 +294,20 @@ class Tester:
         Tester.__ORDERS = new_orders
 
     @staticmethod
-    def get_dwelling_time():
+    def getDwellingTime():
         """
         クリック判別の閾値時間のgetter
         """
         return Tester.__DWELLING_TIME
 
     @staticmethod
-    def set_dwelling_time(new_time):
+    def setDwellingtime(new_time):
         """
         クリック判別の閾値時間のsetter
         """
         Tester.__DWELLING_TIME = new_time
 
-    def __get_from_and_to(self, counter):
+    def __getFromAndTo(self, counter):
         """
         出発地->目的地のx,y座標を求めます
 
@@ -318,11 +351,11 @@ class Tester:
         ------
             カーソルが円内ならTrue. False otherwise.
         """
-        _, _, x_to, y_to = self.__get_from_and_to(counter)
+        _, _, x_to, y_to = self.__getFromAndTo(counter)
 
         distance = int(math.sqrt((x-x_to)**2 + (y-y_to)**2))
 
-        return distance <= Tester.get_tgt_radius()
+        return distance <= Tester.getTgtRadius()
 
     def __saveToExcel(self):
         """
@@ -340,6 +373,8 @@ class Tester:
             new_data_frame['x from ' + str(i) + ' to ' + str(i+1)] = self.x[i]
             new_data_frame['y from ' + str(i) + ' to ' + str(i+1)] = self.y[i]
             new_data_frame['time from ' + str(i) + ' to ' + str(i+1)] = self.time[i]
+            new_data_frame['roll from ' + str(i) + ' to ' + str(i+1)] = self.roll[i]
+            new_data_frame['pitch from ' + str(i) + ' to ' + str(i+1)] = self.pitch[i]
 
         print(new_data_frame.keys())
 
@@ -353,7 +388,7 @@ class Tester:
         """
         ユニットテスト用の関数。無視でいいです。
         """
-        x_from, y_from, x_to, y_to = self.__get_from_and_to(counter)
+        x_from, y_from, x_to, y_to = self.__getFromAndTo(counter)
         x_mid = int((x_from + x_to) / 2)
         y_mid = int((y_from + y_to) / 2)
 
@@ -378,7 +413,7 @@ class Tester:
         """
         内野が私用で使ってます。無視でいいです。
         """
-        x_from, y_from, x_to, y_to = self.__get_from_and_to(counter)
+        x_from, y_from, x_to, y_to = self.__getFromAndTo(counter)
 
         a = -(y_to - y_from)
         b = (x_to - x_from)
@@ -408,6 +443,8 @@ class Tester:
         time_record = []
         x_record = []
         y_record = []
+        roll_record = []
+        pitch_record = []
 
         # record the first time when the cursor entered into the target
         first_entry = None # not None when the cursor entered. None otherwise
@@ -432,6 +469,7 @@ class Tester:
             pygame.display.update()
             now = pygame.time.get_ticks() #現時点での経過時間を取得
             x, y = pygame.mouse.get_pos() #現時点でのカーソル座標を取得
+            roll, pitch = self.ser.read()
 
             # reset the position if the cursor drifts away too much
             if self.__isDriftingAway(x, y, counter):
@@ -443,6 +481,8 @@ class Tester:
             time_record.append(now) #経過時間を記録
             x_record.append(x) #カーソル座標を記録
             y_record.append(y) #カーソル座標を記録
+            roll_record.append(roll)
+            pitch_record.append(pitch)
 
             # draw the trajectory of the cursor
             pygame.draw.circle(screen, (0, 0, 0), (x, y), 2, 0)
@@ -487,6 +527,8 @@ class Tester:
                         self.time[counter] = time_record
                         self.x[counter] = x_record
                         self.y[counter] = y_record
+                        self.roll[counter] = roll_record
+                        self.pitch[counter] = pitch_record
                         counter += 1
                         del self.__test
                         self.__saveToExcel()
@@ -497,9 +539,13 @@ class Tester:
                         self.time[counter] = time_record
                         self.x[counter] = x_record
                         self.y[counter] = y_record
+                        self.roll[counter] = roll_record
+                        self.pitch[counter] = pitch_record
                         time_record = []
                         x_record = []
                         y_record = []
+                        roll_record = []
+                        pitch_record = []
                         counter += 1
                         screen.fill((255, 255, 255))  # whiting out the screen
                         self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS) # draw the circles
