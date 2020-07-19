@@ -10,6 +10,7 @@
 #define IndicateSqrt 11
 #define IndicateQuad 12
 
+
 int16_t axRaw, ayRaw, azRaw, gxRaw, gyRaw, gzRaw, temperature; //raw data given by the sensor
 unsigned long t; //the time since the beginning of the loop() function
 float kx = 0.2; //gain for x
@@ -18,6 +19,7 @@ char mode = 0; //mode of control type
 int move_x; //relative distance to move in X-axis
 int move_y; //relative distance to move in Y-axis
 float acc_x, acc_y, acc_z; //raw data from the sensor
+
 float pitch, roll;
 unsigned long dt; //duration for a single loop
 int sensitivity; // number of times the user pushed the switch 1

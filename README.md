@@ -1,12 +1,15 @@
 # Pointing-Device
 Experimental Settings for my graduation thesis.
+Licenses belong to Kyushu University.
 
-1)if you are a student from Kyushu University
-Please use this program freely.
+R_codes
+	1. Analysis for the result of the experiments
 
-2)if you are not a student from Kyushu University
-Please let me know before you use this as a reference.
+python_codes
+	1. New_tester: GUI program for Fitts' law experiment
+	2. Data_store: Stores the result of the above experiment into dataframe
+	3. Data_analyzer: Analyzes the result of the above experiment
 
-For the further information, please reference to https://qiita.com/intel_outside/items/37c5ff45622aba352dfa
-
-Thank you for reading!
+Arduino
+	1. Header.h : header file for arduino program
+	2. 

@@ -45,12 +45,14 @@ class DataFrames:
         """
         self.__path = path
         self.__data = pd.read_excel(self.__path)
-        self.__orders = Tester.get_orders()
+        self.__orders = Tester.getOrders()
         self.__cods = {'x':[], 'y':[]}
+        self.__angles = {'roll':[], 'pitch':[]}
         self.__time = []
         self.__flattening_range = flattening_range
         self.__cods_calculator()  # 座標データをcodsに格納
         self.__time_calculator()  # 各タスクにかかった時間をtimeに格納
+        self.__angles_calculator()
 
 
     def __cods_calculator(self) -> None:
@@ -87,6 +89,27 @@ class DataFrames:
 
             self.__time.append(MT)
 
+    def __angles_calculator(self) -> None:
+        """
+        エクセルデータから角度(roll, pitch)を読み取り、self.__anglesに格納します
+        """
+        for i in range(15):
+            tgt_num = self.__orders[i]
+            x_destination = 450 * 200 * np.cos(np.pi * tgt_num / 8)
+            y_destination = 450 * 200 * np.sin(np.pi * tgt_num / 8)
+
+            roll_index = 'roll from ' + str(i) + ' to ' + str(i+1)
+            pitch_index = 'pitch from ' + str(i) + ' to ' + str(i+1)
+
+            roll = self.__data[roll_index].dropna(how='all')
+            pitch = self.__data[pitch_index].dropna(how='all')
+
+            roll = [np.mean(roll[j:j+self.__flattening_range]) for j in range(0, len(roll)-self.__flattening_range, self.__flattening_range)]
+            pitch = [np.mean(pitch[j:j+self.__flattening_range]) for j in range(0, len(pitch)-self.__flattening_range, self.__flattening_range)]
+
+            self.__angles['roll'].append(roll)
+            self.__angles['pitch'].append(pitch)
+
 
     def get_cods(self) -> dict:
         """
@@ -103,10 +126,10 @@ class DataFrames:
     def get_orders(self):
         return self.__orders
 
+    def get_angles(self):
+        return self.__angles
+
 
 if __name__ == "__main__":
-    file_path = ""
-    test_data = DataFrames("./linear1.xlsx")
-    print(test_data.get_cods())
-    print(len(test_data.get_cods()['x']))
-    print(test_data.get_time())
+    test_data = DataFrames("./test.xlsx")
+    print(test_data.get_angles())
