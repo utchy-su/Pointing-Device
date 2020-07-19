@@ -7,7 +7,7 @@ void setup() {
 
   Wire.beginTransmission(0x68);
   Wire.write(0x6B);
-  Wire.write(0X00);
+  Wire.write(0x00);
   Wire.endTransmission();
 
   Wire.beginTransmission(0x68);
@@ -31,18 +31,18 @@ void setup() {
 
   //Initialize the all LED
   pinMode(IndicateSensitivity, OUTPUT); //9番ピンを初期化
-  pinMode(IndicateOff, OUTPUT);  //10番ピンを初期化
-  pinMode(IndicateLinear, OUTPUT);  //11番ピンを初期化
-  pinMode(IndicateNonLinear, OUTPUT);  //12番ピンを初期化
+  pinMode(IndicateLinear, OUTPUT);  //10番ピンを初期化
+  pinMode(IndicateSqrt, OUTPUT);  //11番ピンを初期化
+  pinMode(IndicateQuad, OUTPUT);  //12番ピンを初期化
   digitalWrite(IndicateSensitivity, HIGH);
-  digitalWrite(IndicateOff, HIGH);
   digitalWrite(IndicateLinear, HIGH);
-  digitalWrite(IndicateNonLinear, HIGH);
+  digitalWrite(IndicateSqrt, HIGH);
+  digitalWrite(IndicateQuad, HIGH);
   delay(1000);
   digitalWrite(IndicateSensitivity, LOW);
-  digitalWrite(IndicateOff, LOW);
   digitalWrite(IndicateLinear, LOW);
-  digitalWrite(IndicateNonLinear, LOW);
+  digitalWrite(IndicateSqrt, LOW);
+  digitalWrite(IndicateQuad, LOW);
   //起動時にすべてのLEDが一瞬点灯する
 }
 
@@ -64,10 +64,10 @@ void loop() {
   acc_y = ayRaw / 16384.0;
   acc_z = azRaw / 16384.0;
   
-  acc_angX = atan2(acc_y, acc_x) * 360 / 2.0 / PI; //calculatete the tilt angle about X-axis
-  //Serial.print(acc_angX); Serial.print(",");
-  acc_angY = atan2(acc_z, acc_x) * 360 / 2.0 / PI; //calculate the tilt angle about Y-axis
-  //Serial.println(acc_angY);
+  pitch = -atan2(acc_y, acc_x) * 360 / 2.0 / PI; //calculatete the pitch angle
+  //Serial.print(pitch); Serial.print(",");
+  roll = atan2(acc_z, acc_x) * 360 / 2.0 / PI; //calculate the roll angle
+  //Serial.println(roll);
 
   if (digitalRead(4) == LOW) { //if the left switch is pushed then sensitiity+=1
     sensitivity++;
@@ -79,11 +79,10 @@ void loop() {
 
   if (digitalRead(5) == LOW) { //if the right switch is pushed then function+=1
     function += 1;
-    if (function > 2) function = 0;
+    if (function > 3) function = 0;
     delay(100);
     while (digitalRead(5) == LOW) {}
     indicateCurrentFunction();
-    calibrate();
   }
   distinguisher();
   sensitivity_changer();
@@ -97,20 +96,29 @@ void loop() {
 //2: sensitivity_changer
 void indicateCurrentFunction() {
   if (function == 0) {
-      digitalWrite(IndicateOff, HIGH);
-      delay(1000);
-      digitalWrite(IndicateOff, LOW);
-    }
-   else if (function == 1) {
       digitalWrite(IndicateLinear, HIGH);
       delay(1000);
       digitalWrite(IndicateLinear, LOW);
     }
-   else {
-      digitalWrite(IndicateNonLinear, HIGH);
+   else if (function == 1) {
+      digitalWrite(IndicateSqrt, HIGH);
       delay(1000);
-      digitalWrite(IndicateNonLinear, LOW);
+      digitalWrite(IndicateSqrt, LOW);
     }
+   else if (function == 2) {
+      digitalWrite(IndicateQuad, HIGH);
+      delay(1000);
+      digitalWrite(IndicateQuad, LOW);
+    }
+   else {
+      digitalWrite(IndicateLinear, HIGH);
+      digitalWrite(IndicateSqrt, HIGH);
+      digitalWrite(IndicateQuad, HIGH);
+      delay(1000);
+      digitalWrite(IndicateLinear, LOW);
+      digitalWrite(IndicateSqrt, LOW);
+      digitalWrite(IndicateQuad, LOW);
+   }
   }
 
 void indicateCurrentSensitivity() {
@@ -122,93 +130,34 @@ void indicateCurrentSensitivity() {
       }
   }
 
-/*
-void twinkle(int func_name) {
-  if (func_name == 1) {
-    int n = IndicateMode; //light LED1 on
-    int rep_num =  sensitivity;
-    Serial.println(n);
-    for (int i = 0; i <= s; i++) {
-      digitalWrite(n, HIGH);
-      delay(100);
-      digitalWrite(n, LOW);
-      delay(100);
-    }
-  }
-
-  if (func_name == 2) {
-    int rep_num = s;
-    if (s == 0) {
-      digitalWrite(IndicateLow, HIGH);
-      delay(1000);
-      digitalWrite(IndicateLow, LOW);
-    }
-    if (s == 1) {
-      digitalWrite(IndicateMid, HIGH);
-      delay(1000);
-      digitalWrite(IndicateMid, LOW);
-    }
-    if (s == 2) {
-      digitalWrite(IndicateHigh, HIGH);
-      delay(1000);
-      digitalWrite(IndicateHigh, LOW);
-    }
-  }
-
-  if (func_name == 3){
-    digitalWrite(IndicateLow, HIGH);
-    delay(1000);
-    digitalWrite(IndicateLow, LOW);
-
-    if (f == 0){
-      digitalWrite(IndicateMid, HIGH);
-      delay(1000);
-      digitalWrite(IndicateMid, LOW);
-    }
-  }
-}
-*/
-
 void distinguisher() {
-  float X = acc_angY - Yoffset;
-  float Y = acc_angX - Xoffset;
+  float netPitch = roll - rollOffset;
+  float netRoll = pitch - pitchOffset;
   //this is reversed because the sensor is on its side
-  if (function == 0) { //OFF MODE
-    move_x = 0;
-    move_y = 0;
+  if (function == 0) { //linear mode
+    move_x = (int) kx * (netPitch/pitchMax);
+    move_y = (int) ky * (netRoll/rollMax);
   }
 
-  if (function == 1) { //Linear Mode
-    move_x = (int) (kx *  X / Xmax);
-    move_y = (int) (ky * -Y / Ymax);
+  if (function == 1) { //sqrt mode
+    move_x = (int) kx * sign(netPitch) * sqrt(abs(netPitch)/pitchMax);
+    move_y = (int) ky * sign(netRoll) * sqrt(abs(netRoll)/rollMax);
   }
 
   if (function == 2) { //non-linear mode
-    if (0 <= X && X < Xmax) {
-      move_x = (int) (kx * (1 - sin(X * DEG_TO_RAD) / (X * DEG_TO_RAD)) / Cx);
-    } else if (-Xmax < X && X < 0) {
-      move_x = (int) (-kx * (1 - sin(X * DEG_TO_RAD) / (X * DEG_TO_RAD)) / Cx);
-    } else if (X < -Xmax){
-      move_x = -kx;
-    } else if (X > Xmax){
-      move_x = kx;
-    }
-
-    if (0 <= Y && Y < Ymax) {
-      move_y = (int) (-ky * (1 - sin(Y * DEG_TO_RAD) / (Y * DEG_TO_RAD)) / Cy);
-    } else if (-Ymax< Y && Y< 0) {
-      move_y = (int) (ky * (1 - sin(Y * DEG_TO_RAD) / (Y * DEG_TO_RAD)) / Cy);
-    } else if (Y < -Ymax){
-      move_y = ky;
-    } else if (Ymax < Y){
-      move_y = -ky;
-    }
+    move_x = (int) kx * sign(netPitch) * (netPitch/pitchMax)*(netPitch/pitchMax);
+    move_y = (int) ky * sign(netRoll) * (netRoll/rollMax)*(netRoll/rollMax);
   }
-  Serial.print(X); Serial.print(';'); Serial.print(-Y); Serial.print(';'); Serial.println(kx);
+
+  if (function == 3) { //off mode
+    move_x = 0;
+    move_y = 0;
+  }
+  Serial.print(netPitch); Serial.print(';'); Serial.print(-netRoll); Serial.print(';'); Serial.println(kx);
  }
 
 void calibrate() {
-  float Xcalib, Ycalib;
+  float pitchCalib, rollCalib;
   for (int i = 0; i < 100; i++) {
     Wire.beginTransmission(0x68);
     Wire.write(0x3B);
@@ -223,12 +172,12 @@ void calibrate() {
     acc_y = ayRaw / 16384.0;
     acc_z = azRaw / 16384.0;
 
-    Xcalib += atan2(acc_y, acc_x) * 360 / 2.0 / PI; //calculatete the tilt angle about X-axis
-    //Serial.print(acc_angX); Serial.print(",");
-    Ycalib += atan2(acc_z, acc_x) * 360 / 2.0 / PI; //calculate the tilt angle about Y-axis
+    pitchCalib += -atan2(acc_y, acc_x) * 360 / 2.0 / PI; //calculatete the tilt angle about netPitch-axis
+    //Serial.print(pitch); Serial.print(",");
+    rollCalib += atan2(acc_z, acc_x) * 360 / 2.0 / PI; //calculate the tilt angle about netRoll-axis
   }
-  Xoffset = Xcalib/100;
-  Yoffset = Ycalib/100; //an average value for 100 iteration
+  pitchOffset = pitchCalib/100;
+  rollOffset = rollCalib/100; //an average value for 100 iteration
   
 }
 
