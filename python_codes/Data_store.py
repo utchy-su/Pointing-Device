@@ -133,3 +133,7 @@ class DataFrames:
 if __name__ == "__main__":
     test_data = DataFrames("./test.xlsx")
     print(test_data.get_angles())
+    for i in range(15):
+        plt.plot(test_data.get_angles()['roll'][i])
+        plt.plot(test_data.get_angles()['pitch'][i])
+        plt.show()

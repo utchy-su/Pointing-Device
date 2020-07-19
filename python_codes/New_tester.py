@@ -16,6 +16,7 @@ import pandas as pd
 import pprint
 import pyautogui as pag
 import serial
+import time
 
 class Serial:
     """
@@ -26,22 +27,26 @@ class Serial:
     ser : pySerial obj
     """
 
-    def __init__(self, com="COM19", baud=9600):
+    def __init__(self, com="/dev/ttyACM0", baud=9600):
+        self.ser = None
         try:
             self.ser = serial.Serial(com, baud, timeout=None)
         except:
-            self.ser = None
+            while self.ser is None:
+                self.ser = serial.Serial(com, baud, timeout=None)
+                time.sleep(0.5)
 
     def read(self):
-        if self.ser is None:
-            #テスト目的です
-            return 10, 10
         line = self.ser.readline()
         line = line.decode().split(";")
-        print(line)
 
-        roll = line[0]
-        pitch = line[1]
+        try:
+            roll = line[0]
+            pitch = line[1]
+        except IndexError as e:
+            roll = None
+            pitch = None
+        print(roll, pitch)
 
         return roll, pitch
 
@@ -457,6 +462,17 @@ class Tester:
         # 進行しないようにしてあります。
         while not isClicked:
             pygame.display.update()
+            now = pygame.time.get_ticks()
+            x, y = pygame.mouse.get_pos()
+            if self.__isInCircle(-1, x, y):
+                if first_entry is not None:
+                    dwelling_time = now - first_entry
+                    if dwelling_time >= Tester.__DWELLING_TIME:
+                        pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONDOWN))
+                else:
+                    first_entry = pygame.time.get_ticks()
+            else:
+                first_entry = None
             for event in pygame.event.get():
                 if event.type == MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
@@ -475,7 +491,7 @@ class Tester:
             if self.__isDriftingAway(x, y, counter):
                 x_from = int(450 + 200 * math.cos(math.pi * (Tester.__ORDERS[counter] / 8)))
                 y_from = int(450 + 200 * math.sin(math.pi * (Tester.__ORDERS[counter] / 8)))
-                pygame.mouse.set_pos(x_from, y_from)
+                #pygame.mouse.set_pos(x_from, y_from)
 
             # append the trajectory to the record
             time_record.append(now) #経過時間を記録
