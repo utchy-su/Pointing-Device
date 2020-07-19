@@ -236,11 +236,12 @@ class Tester:
         screen_size : tuple
             実験用ウインドウのサイズを指定してください。デフォルトでは(900, 900)
         """
-        self.x = {}
-        self.y = {}
-        self.time = {}
-        self.roll = {}
-        self.pitch = {}
+        self.x = {} # coordinate about x-axis
+        self.y = {} # coordinate about y-axis
+        self.time = {} # time passed of each time
+        self.roll = {} # roll angle of each time
+        self.pitch = {} # pitch angle of each time
+        self.isSuccessful = []
         self.__base = None
         self.__test = None
         self.__screen_size = screen_size
@@ -380,6 +381,7 @@ class Tester:
             new_data_frame['time from ' + str(i) + ' to ' + str(i+1)] = self.time[i]
             new_data_frame['roll from ' + str(i) + ' to ' + str(i+1)] = self.roll[i]
             new_data_frame['pitch from ' + str(i) + ' to ' + str(i+1)] = self.pitch[i]
+        new_data_frame["fail success ratio"] = self.isSuccessful
 
         print(new_data_frame.keys())
 
@@ -450,6 +452,7 @@ class Tester:
         y_record = []
         roll_record = []
         pitch_record = []
+        isSuccessful = True
 
         # record the first time when the cursor entered into the target
         first_entry = None # not None when the cursor entered. None otherwise
@@ -489,8 +492,9 @@ class Tester:
 
             # reset the position if the cursor drifts away too much
             if self.__isDriftingAway(x, y, counter):
-                x_from = int(450 + 200 * math.cos(math.pi * (Tester.__ORDERS[counter] / 8)))
-                y_from = int(450 + 200 * math.sin(math.pi * (Tester.__ORDERS[counter] / 8)))
+                isSuccessful = False
+                # x_from = int(450 + 200 * math.cos(math.pi * (Tester.__ORDERS[counter] / 8)))
+                # y_from = int(450 + 200 * math.sin(math.pi * (Tester.__ORDERS[counter] / 8)))
                 #pygame.mouse.set_pos(x_from, y_from)
 
             # append the trajectory to the record
@@ -545,6 +549,7 @@ class Tester:
                         self.y[counter] = y_record
                         self.roll[counter] = roll_record
                         self.pitch[counter] = pitch_record
+                        self.isSuccessful.append(isSuccessful)
                         counter += 1
                         del self.__test
                         self.__saveToExcel()
@@ -557,11 +562,13 @@ class Tester:
                         self.y[counter] = y_record
                         self.roll[counter] = roll_record
                         self.pitch[counter] = pitch_record
+                        self.isSuccessful.append(isSuccessful)
                         time_record = []
                         x_record = []
                         y_record = []
                         roll_record = []
                         pitch_record = []
+                        isSuccessful = True
                         counter += 1
                         screen.fill((255, 255, 255))  # whiting out the screen
                         self.__base = Base(screen, self.__screen_size, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS) # draw the circles
@@ -570,7 +577,8 @@ class Tester:
 
 
 if __name__ == "__main__":
-    path = "./test.xlsx"
+    import sys
+    path = sys.argv[1]
     # 例：デスクトップにtest.xlsxという名前で保存したいのであれば
     #    C:Users/FUJITSU/Desktop/test.xlsx  というパスになるかと思います。
     test = Tester(path)
