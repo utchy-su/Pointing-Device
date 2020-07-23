@@ -59,9 +59,10 @@ class Analyzer:
         to change the radius of the target circle to 30px")
         self.__data = DataFrames(path)
         self.__cods = self.__data.get_cods()
+        self.__angles = self.__data.get_angles()
         self.__order = self.__data.get_orders()
         self.__time = self.__data.get_time()
-        self.__tgt_radius = Tester.get_tgt_radius()
+        self.__tgt_radius = Tester.getTgtRadius()
 
         print("Analyzing: " + path)
         print("target circle's radius is set to: ", self.__tgt_radius)
@@ -330,6 +331,20 @@ class Analyzer:
 
         return Throughput
 
+    def _max_angle_counter(self):
+        roll_max_angles = []
+        pitch_max_angles = []
+
+        for i in range(15):
+            roll_max = max((abs(min(self.__angles["roll"][i])), max(self.__angles["roll"][i])))
+            pitch_max = max((abs(min(self.__angles["pitch"][i])), max(self.__angles["pitch"][i])))
+
+            roll_max_angles.append(roll_max)
+            pitch_max_angles.append(pitch_max)
+
+        return roll_max_angles, pitch_max_angles
+
+
     def check_route(self):
         """
         計15回分の軌跡を表示できるmethodです。publicにしてあります。
@@ -353,6 +368,7 @@ class Analyzer:
         TP = self._TP_counter()
         MDC = self._MDC_counter()
         ODC = self._ODC_counter()
+        roll_max, pitch_max = self._max_angle_counter()
 
         df = pd.DataFrame({
             'click': np.arange(1, 16),
@@ -363,7 +379,9 @@ class Analyzer:
             'MO': MO,
             'MDC': MDC,
             'ODC': ODC,
-            'Throughput': TP
+            'Throughput': TP,
+            'max roll': roll_max,
+            'max pitch': pitch_max
         })
 
         return df

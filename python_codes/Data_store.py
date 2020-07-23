@@ -94,10 +94,6 @@ class DataFrames:
         エクセルデータから角度(roll, pitch)を読み取り、self.__anglesに格納します
         """
         for i in range(15):
-            tgt_num = self.__orders[i]
-            x_destination = 450 * 200 * np.cos(np.pi * tgt_num / 8)
-            y_destination = 450 * 200 * np.sin(np.pi * tgt_num / 8)
-
             roll_index = 'roll from ' + str(i) + ' to ' + str(i+1)
             pitch_index = 'pitch from ' + str(i) + ' to ' + str(i+1)
 
@@ -129,11 +125,28 @@ class DataFrames:
     def get_angles(self):
         return self.__angles
 
+class Angle_Analysis:
+
+    def __init__(self, path):
+        self.data = DataFrames(path, flattening_range=10)
+        self.angles = self.data.get_angles()
+
+    def show_angle_trend(self):
+
+        for i in range(15):
+            roll = self.angles["roll"][i]
+            pitch = self.angles["pitch"][i]
+
+            x = np.arange(0, len(roll), 1)
+
+            plt.plot(x, roll, label="roll: " + str(i))
+            plt.plot(x, pitch, label="pitch: " + str(i))
+
+        plt.legend()
+        plt.ylim(-40, 40)
+        plt.show()
 
 if __name__ == "__main__":
-    test_data = DataFrames("./test.xlsx")
-    print(test_data.get_angles())
-    for i in range(15):
-        plt.plot(test_data.get_angles()['roll'][i])
-        plt.plot(test_data.get_angles()['pitch'][i])
-        plt.show()
+    path = "./Nishigaichi/Linear/gain_20/attempt40.xlsx"
+    test = Angle_Analysis(path)
+    test.show_angle_trend()

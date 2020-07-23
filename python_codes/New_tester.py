@@ -577,8 +577,16 @@ class Tester:
 
 
 if __name__ == "__main__":
+    import glob
     import sys
     path = sys.argv[1]
+
+    file_list = glob.glob("./**", recursive=True)
+    #ディレクトリ内のファイル名を全取得
+    if path in file_list:
+        exit("specified file name already exists!")
+    # 重複するファイル名は作れない
+
     # 例：デスクトップにtest.xlsxという名前で保存したいのであれば
     #    C:Users/FUJITSU/Desktop/test.xlsx  というパスになるかと思います。
     test = Tester(path)
