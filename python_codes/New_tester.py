@@ -224,7 +224,7 @@ class Tester:
     __ORDERS = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
     __DWELLING_TIME = 1000 #ms
 
-    def __init__(self, path, screen_size=(900, 900)):
+    def __init__(self, path, screen_size=(900, 900), measure_angles = False):
         """
         x, y, 経過時間を保持するdictを空にして初期化します。
         excelファイル保存用のパスをstrで取得します
@@ -246,7 +246,9 @@ class Tester:
         self.__test = None
         self.__screen_size = screen_size
         self.path = path
-        self.ser = Serial()
+        if measure_angles:
+            self.ser = Serial()
+        self.__measure_angles = measure_angles # bool
 
     @staticmethod
     def getTgtRadius():
@@ -488,7 +490,10 @@ class Tester:
             pygame.display.update()
             now = pygame.time.get_ticks() #現時点での経過時間を取得
             x, y = pygame.mouse.get_pos() #現時点でのカーソル座標を取得
-            roll, pitch = self.ser.read()
+            if self.__measure_angles:
+                roll, pitch = self.ser.read()
+            else:
+                roll, pitch = 0, 0
 
             # reset the position if the cursor drifts away too much
             if self.__isDriftingAway(x, y, counter):

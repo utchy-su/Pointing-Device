@@ -8,12 +8,12 @@ class Project_Runner3:
 
     def __init__(self, path):
         self.__path = path
-        self.__linear_data = pd.DataFrame(columns=['click', 'TRE', 'TAC', 'MV', 'ME', 'MO', 'MDC', 'ODC', 'Throughput', 'max roll', 'max pitch'])
+        self.__linear_data = pd.DataFrame(columns=['click', 'TRE', 'TAC', 'MV', 'ME', 'MO', 'MDC', 'ODC', 'Throughput', 'max_roll', 'max_pitch'])
 
     def __analyze_linear(self):
 
         for i in range(1, 51, 1):
-            path = self.__path + "/Linear/gain_10/attempt" + str(i) + ".xlsx"
+            path = self.__path + "/quad/gain_10/attempt" + str(i) + ".xlsx"
 
             print("now: " + path)
 
@@ -23,7 +23,7 @@ class Project_Runner3:
 
             self.__linear_data = self.__linear_data.append(df, ignore_index=True)
 
-        self.__linear_data.to_excel(self.__path + "/Linear/gain_10/summary.xlsx")
+        self.__linear_data.to_excel(self.__path + "/quad/gain_10/summary.xlsx")
 
     def main(self):
         self.__analyze_linear()

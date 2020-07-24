@@ -380,8 +380,8 @@ class Analyzer:
             'MDC': MDC,
             'ODC': ODC,
             'Throughput': TP,
-            'max roll': roll_max,
-            'max pitch': pitch_max
+            'max_roll': roll_max,
+            'max_pitch': pitch_max
         })
 
         return df
