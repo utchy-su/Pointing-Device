@@ -61,9 +61,16 @@ class Route_analyzer:
         print(x1.corr(x2))
 
         plt.plot(x1, x2, "o", color="black")
-        plt.xlim(0, max(x1)*1.2)
-        plt.ylim(0, max(x2)*1.2)
+        # plt.xlim(0, max(x1)*1.2)
+        # plt.ylim(0, max(x2)*1.2)
         plt.title("corr = " + str(x1.corr(x2)))
+        plt.show()
+
+    def plotHist(self, param):
+        x = self.__df[param]
+
+        # plt.xlim(0, 40)
+        plt.hist(x, bins=20)
         plt.show()
 
     def plotMeans(self, param):
@@ -78,10 +85,14 @@ class Route_analyzer:
         # plt.grid()
         plt.show()
 
+    def showRoutes(self):
+        
+
 
 if __name__ == "__main__":
     import sys
     param = sys.argv[1]
     test = Route_analyzer("./Nishigaichi/Linear/gain_10/summary.xlsx")
+    test.plotHist(param)
     test.plotMeans(param)
     test.plotCorr("max_pitch", "max_roll")

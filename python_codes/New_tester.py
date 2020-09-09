@@ -224,7 +224,7 @@ class Tester:
     __ORDERS = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
     __DWELLING_TIME = 1000 #ms
 
-    def __init__(self, path, screen_size=(900, 900), measure_angles = False):
+    def __init__(self, path, screen_size=(900, 900), measure_angles = True):
         """
         x, y, 経過時間を保持するdictを空にして初期化します。
         excelファイル保存用のパスをstrで取得します
