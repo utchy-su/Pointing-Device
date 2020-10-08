@@ -232,7 +232,7 @@ class Tester:
     __ORDERS = [0, 8, 1, 9, 2, 10, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15, 8]
     __DWELLING_TIME = 1000 #ms
 
-    def __init__(self, path, screen_size=(900, 900), measure_angles = True):
+    def __init__(self, path, screen_size=(900, 900), measure_angles = True, com_port="/dev/ttyACM0"):
         """
         x, y, 経過時間を保持するdictを空にして初期化します。
         excelファイル保存用のパスをstrで取得します
@@ -255,7 +255,7 @@ class Tester:
         self.__screen_size = screen_size
         self.path = path
         if measure_angles:
-            self.ser = Serial()
+            self.ser = Serial(com=com_port)
         self.__measure_angles = measure_angles # bool
 
     @staticmethod
@@ -613,7 +613,10 @@ if __name__ == "__main__":
     #ファイルを保存したい場所のパスに保存先のフォルダを指定
     #file_name.xlsxを保存するときのファイル名に変更
 
+    # COMPORT = "/dev/ttyACM0"
+    COMPORT = "COM19" #ここは自分のarduinoのCOMポート番号に変更
+
     # 例：デスクトップにtest.xlsxという名前で保存したいのであれば
     #    C:Users/FUJITSU/Desktop/test.xlsx  というパスになるかと思います。
-    test = Tester(path, measure_angles=True)
+    test = Tester(path, measure_angles=True, com_port=COMPORT)
     test.main()
