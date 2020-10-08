@@ -55,8 +55,6 @@ class Analyzer:
         path : str
             excelファイルのファイルパスです
         """
-        warnings.warn("If you are analyzing data of Emi, Kimika... then you need to\
-        to change the radius of the target circle to 30px")
         self.__data = DataFrames(path)
         self.__cods = self.__data.get_cods()
         self.__angles = self.__data.get_angles()
@@ -344,6 +342,18 @@ class Analyzer:
 
         return roll_max_angles, pitch_max_angles
 
+    def _mean_angle_counter(self):
+        roll_mean = []
+        pitch_mean = []
+        for i in range(15):
+            # print(np.mean(self.__angles["roll"][i]))
+            roll = np.mean(self.__angles["roll"][i])
+            pitch = np.mean(self.__angles["pitch"][i])
+
+            roll_mean.append(roll)
+            pitch_mean.append(pitch)
+
+        return roll_mean, pitch_mean
 
     def check_route(self):
         """
@@ -353,7 +363,7 @@ class Analyzer:
             self.__show_route(i)
 
 
-    def main(self):
+    def getDataFrame(self):
         """
         TRE, TAC,...を計算してpandasのデータフレームに格納します。
 
@@ -369,6 +379,7 @@ class Analyzer:
         MDC = self._MDC_counter()
         ODC = self._ODC_counter()
         roll_max, pitch_max = self._max_angle_counter()
+        roll_mean, pitch_mean = self._mean_angle_counter()
 
         df = pd.DataFrame({
             'click': np.arange(1, 16),
@@ -381,7 +392,9 @@ class Analyzer:
             'ODC': ODC,
             'Throughput': TP,
             'max_roll': roll_max,
-            'max_pitch': pitch_max
+            'max_pitch': pitch_max,
+            'mean_roll': roll_mean,
+            'mean_pitch': pitch_mean
         })
 
         return df

@@ -6,6 +6,7 @@
 
 TODO:
     * ターゲット軸の色は要検討
+    * コマンド引数使わない版を作る
 """
 
 import pygame
@@ -154,7 +155,9 @@ class TaskAxis:
         self.__layout_radius = layout_radius
         self.__orders = orders
         self.__allowable_err = allowable_err
+        self.font = pygame.font.Font(None, 50)
         self.__draw()
+        self.__showCount()
 
     def __del__(self):
         """
@@ -187,6 +190,11 @@ class TaskAxis:
         pygame.draw.line(self.screen, (255, 255, 255), (x_from, y_from), (x_to, y_to), 5)
         pygame.draw.circle(self.screen, (255, 0, 0), (x_from, y_from), self.__tgt_radius)
         pygame.draw.circle(self.screen, (255, 0, 0), (x_to, y_to), self.__tgt_radius)
+
+    def __showCount(self):
+        text = self.font.render("click attempt: " + str(self.count+1), True, (0, 0, 0))
+        self.screen.blit(text, [20, 20])
+
 
 
 class Tester:
@@ -582,9 +590,11 @@ class Tester:
 
 
 if __name__ == "__main__":
+    """
     import glob
     import sys
     path = sys.argv[1]
+    measure_angles = sys.argv[2]
 
     file_list = glob.glob("./**", recursive=True)
     #ディレクトリ内のファイル名を全取得
@@ -592,7 +602,18 @@ if __name__ == "__main__":
         exit("specified file name already exists!")
     # 重複するファイル名は作れない
 
+    #もし第三引数 measure_angles = Trueならデバイスから角度のデータを取得して保存
+    if measure_angles == "True":
+        angles = True
+    else:
+        angles = False
+    """
+
+    path = "ファイルを保存したい場所のパス/file_name.xlsx"
+    #ファイルを保存したい場所のパスに保存先のフォルダを指定
+    #file_name.xlsxを保存するときのファイル名に変更
+
     # 例：デスクトップにtest.xlsxという名前で保存したいのであれば
     #    C:Users/FUJITSU/Desktop/test.xlsx  というパスになるかと思います。
-    test = Tester(path)
+    test = Tester(path, measure_angles=True)
     test.main()

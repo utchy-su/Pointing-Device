@@ -8,25 +8,22 @@ class Project_Runner3:
 
     def __init__(self, path):
         self.__path = path
-        self.__linear_data = pd.DataFrame(columns=['click', 'TRE', 'TAC', 'MV', 'ME', 'MO', 'MDC', 'ODC', 'Throughput', 'max_roll', 'max_pitch'])
+        self.__linear_data = pd.DataFrame(columns=['click', 'TRE', 'TAC', 'MV', 'ME', 'MO', 'MDC', 'ODC', 'Throughput', 'max_roll', 'max_pitch', 'mean_roll', 'mean_pitch'])
 
     def __analyze_linear(self):
 
         for i in range(1, 51, 1):
-            path = self.__path + "/sqrt/gain_10/attempt" + str(i) + ".xlsx"
+            path = self.__path + "/sqrt/gain_20/attempt" + str(i) + ".xlsx"
 
-            print("now: " + path)
+            # print("now: " + path)
 
             analyzer = Analyzer(path)
-
-            try:
-                df = analyzer.main()
-            except TypeError:
-                print("stuck at attempt" + str(i))
+            df = analyzer.getDataFrame()
+            # print(df)
 
             self.__linear_data = self.__linear_data.append(df, ignore_index=True)
 
-        self.__linear_data.to_excel(self.__path + "/sqrt/gain_10/summary.xlsx")
+        self.__linear_data.to_excel(self.__path + "/sqrt/gain_20/summary.xlsx")
 
     def main(self):
         self.__analyze_linear()

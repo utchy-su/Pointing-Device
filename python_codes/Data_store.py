@@ -68,6 +68,9 @@ class DataFrames:
             x_index = 'x from ' + str(i) + ' to ' + str(i+1)
             y_index = 'y from ' + str(i) + ' to ' + str(i+1)
 
+            self.__data[x_index] = pd.to_numeric(self.__data[x_index], errors='coerce')
+            self.__data[y_index] = pd.to_numeric(self.__data[y_index], errors="coerce")
+
             x_cods = self.__data[x_index].dropna(how='all')
             y_cods = self.__data[y_index].dropna(how='all')
 
@@ -84,6 +87,8 @@ class DataFrames:
         for i in range(15):
             time_index = 'time from ' + str(i) + ' to ' + str(i+1)
 
+            self.__data[time_index] = pd.to_numeric(self.__data[time_index], errors="coerce")
+
             time = self.__data[time_index].dropna(how="all")
             MT = (time.iloc[-1] - time.iloc[0])/1000
 
@@ -96,6 +101,9 @@ class DataFrames:
         for i in range(15):
             roll_index = 'roll from ' + str(i) + ' to ' + str(i+1)
             pitch_index = 'pitch from ' + str(i) + ' to ' + str(i+1)
+
+            self.__data[roll_index] = pd.to_numeric(self.__data[roll_index], errors="coerce")
+            self.__data[pitch_index] = pd.to_numeric(self.__data[pitch_index], errors="coerce")
 
             roll = self.__data[roll_index].dropna(how='all')
             pitch = self.__data[pitch_index].dropna(how='all')
