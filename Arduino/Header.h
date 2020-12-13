@@ -13,8 +13,8 @@
 
 int16_t axRaw, ayRaw, azRaw, gxRaw, gyRaw, gzRaw, temperature; //raw data given by the sensor
 unsigned long t; //the time since the beginning of the loop() function
-float kx = 0.2; //gain for x
-float ky = 0.2; //gain for y
+float kx = 0.0; //gain for x
+float ky = 0.0; //gain for y
 char mode = 0; //mode of control type
 int move_x; //relative distance to move in X-axis
 int move_y; //relative distance to move in Y-axis
