@@ -153,8 +153,8 @@ class DataFrames:
             x = self.__data[x_index].dropna(how="all")
             y = self.__data[y_index].dropna(how="all")
 
-            x = [x[j] for j in range(0, len(x)-self.__flattening_range, self.__flattening_range)]
-            y = [y[j] for j in range(0, len(y)-self.__flattening_range, self.__flattening_range)]
+            x = [np.mean(x[j:j+self.__flattening_range]) for j in range(0, len(x)-self.__flattening_range, self.__flattening_range)]
+            y = [np.mean(y[j:j+self.__flattening_range]) for j in range(0, len(y)-self.__flattening_range, self.__flattening_range)]
 
             self.__gaze_cods['x'].append(x)
             self.__gaze_cods['y'].append(y)

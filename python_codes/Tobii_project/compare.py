@@ -5,20 +5,21 @@ import matplotlib.pyplot as plt
 
 class Compare:
 
-    def __init__(self):
-        self.lin10 = pd.read_excel(".\\data\\Uchino\\linear_10\\summary.xlsx")
+    def __init__(self, subject):
+        self.lin10 = pd.read_excel(".\\data\\" + subject + "\\linear_10\\summary.xlsx")
         # self.lin20 = pd.read_excel("./Nishigaichi/Linear/gain_20/summary.xlsx")
         self.lin20 = None
 
-        self.sqrt10 = pd.read_excel(".\\data\\Uchino\\sqrt_10\\summary.xlsx")
+        self.sqrt10 = pd.read_excel(".\\data\\" + subject + "\\sqrt_10\\summary.xlsx")
         # self.sqrt20 = pd.read_excel("./Nishigaichi/sqrt/gain_20/summary.xlsx")
         self.sqrt20 = None
 
-        self.quad10 = pd.read_excel(".\\data\\Uchino\\quad_10\\summary.xlsx")
+        # self.quad10 = pd.read_excel(".\\data\\" + subject + "\\quad_10\\summary.xlsx")
+        self.quad10 = None
         # self.quad20 = pd.read_excel("./Nishigaichi/quad/gain_20/summary.xlsx")
         self.quad20 = None
 
-        self.mouse = pd.read_excel(".\\data\\Uchino\\mouse\\summary.xlsx")
+        self.mouse = pd.read_excel(".\\data\\" + subject + "\\mouse\\summary.xlsx")
 
         self.data = {"linear":[self.lin10, self.lin20],
                     "sqrt": [self.sqrt10, self.sqrt20],
@@ -37,7 +38,7 @@ class Compare:
         sqrt10_mean = self.sqrt10[param].mean()
         sqrt20_mean = 0  # self.sqrt20[param].mean()
 
-        quad10_mean = self.quad10[param].mean()
+        quad10_mean = 0  # self.quad10[param].mean()
         quad20_mean = 0  # self.quad20[param].mean()
 
         lin10_std = self.lin10[param].std()
@@ -46,7 +47,7 @@ class Compare:
         sqrt10_std = self.sqrt10[param].std()
         sqrt20_std = 0  # self.sqrt20[param].std()
 
-        quad10_std = self.quad10[param].std()
+        quad10_std = 0  # self.quad10[param].std()
         quad20_std = 0  # self.quad20[param].std()
 
         mouse_mean = self.mouse[param].mean()
@@ -130,7 +131,7 @@ class Compare:
 
 
 if __name__ == "__main__":
-    test = Compare()
+    test = Compare("Iwata")
     type = None
     while type != -1:
         type = int(input("0:performance comparison, 1:trend, 2:angles 3:quit  -->"))

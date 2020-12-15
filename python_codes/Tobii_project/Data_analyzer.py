@@ -30,6 +30,8 @@ import matplotlib.pyplot as plt
 from stdlib import MyLibrary as lib
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+import concurrent.futures
+from multiprocessing import Pool
 
 
 class Analyzer:
@@ -59,7 +61,8 @@ class Analyzer:
         path : str
             excelファイルのファイルパスです
         """
-        self.__data = DataFrames(path, flattening_range=1)
+        self.__data = DataFrames(path, flattening_range=5)
+        self.path = path
         self.__cods = self.__data.get_cods()
         self.__angles = self.__data.get_angles()
         self.__gaze_cods = self.__data.get_gaze_cods()
@@ -149,7 +152,7 @@ class Analyzer:
 
     def __show_route_initialize(self):
         pygame.init()
-        screen_size = (1900, 1000)
+        screen_size = (1920, 1080)
         screen = pygame.display.set_mode(screen_size)
         screen.fill((255, 255, 255))
 
@@ -433,6 +436,26 @@ class Analyzer:
 
         return mt
 
+    def _corr_counter(self):
+        x_corr = []
+        y_corr = []
+
+        for i in range(15):
+            px, py = self.__cods['x'][i], self.__cods['y'][i]
+            gx, gy = self.__gaze_cods['x'][i], self.__gaze_cods['y'][i]
+
+            px = pd.Series(px)
+            py = pd.Series(py)
+            gx = pd.Series(gx)
+            gy = pd.Series(gy)
+
+            cx, cy = px.corr(gx), py.corr(gy)
+
+            x_corr.append(cx)
+            y_corr.append(cy)
+
+        return x_corr, y_corr
+
     def param_tlead_corr(self):
         x, y = [], []
         sampling_range = 1
@@ -445,7 +468,7 @@ class Analyzer:
 
             dist = np.array([abs(a * x + b * y + c) / np.sqrt(a ** 2 + b ** 2) for x, y in zip(x_cods, y_cods)])
 
-            # dist_dt = [(dist[j+1] - dist[j])/(t[j+1] - t[j]) for j in range(len(dist)-1)]
+            dist_dt = [(dist[j+1] - dist[j])/(t[j+1] - t[j]) for j in range(len(dist)-1)]
 
             tlead = self.__data.get_tlead()[i]
             tlead = [0 if t < 0 else 1 for t in tlead]  # 0:視線追従, 1:視線先行
@@ -454,9 +477,11 @@ class Analyzer:
 
             print(tlead.count(0), tlead.count(1))
 
-            x.append(dist[1:])
+            x.append(dist_dt)
             y.append(tlead)
         x = np.hstack(x)
+        plt.hist(x)
+        plt.show()
         y = np.hstack(y)
         x_test = x.reshape(-1, 1)
         y_test = y
@@ -506,6 +531,7 @@ class Analyzer:
         roll_mean, pitch_mean = self._mean_angle_counter()
         MD = self._MD_counter()
         mean_tlead = self._mean_tlead_counter()
+        x_corr, y_corr = self._corr_counter()
 
         df = pd.DataFrame({
             'click': np.arange(1, 16),
@@ -525,33 +551,67 @@ class Analyzer:
             'gaze_MV': gaze_MV,
             'gaze_ME': gaze_ME,
             'gaze_MO': gaze_MO,
-            'mean_tlead': mean_tlead
+            'mean_tlead': mean_tlead,
+            'x_corr': x_corr,
+            'y_corr': y_corr
         })
 
         return df
 
 
+class ExecuteAnalysis:
+
+    def __init__(self):
+        pass
+
+    def data_cleansing(self, df):
+        df = df.dropna()
+        df = df[df.gaze_MV > 0]
+        df = df[df.x_corr > 0]
+        df = df[df.y_corr > 0]
+        return df
+
+    def test(self, subject, param):
+        center = (1920 // 2, 1080 // 2)
+        test = Analyzer(".\\data\\" + subject + "\\" + param + "\\test1.xlsx", center)
+        df = test.getDataFrame()
+        for i in range(2, 21):
+            path = ".\\data\\" + subject + "\\" + param + "\\test" + str(i) + ".xlsx"
+            t = Analyzer(path, center)
+            df = df.append(t.getDataFrame())
+
+        df = self.data_cleansing(df)
+        df.to_excel(".\\data\\" + subject + "\\" + param + "\\summary.xlsx")
+
+    def get_params(self):
+        args = []
+        subject = ["Murakami", "Inoue", "Iwata", "Uchino"]
+        param = ["linear_10", "sqrt_10", "mouse"]
+
+        for s in subject:
+            for p in param:
+                args.append((s, p))
+
+        return args
+
+    def test_wrapper(self, a):
+        self.test(*a)
+
+
 if __name__ == "__main__":
+    t = ExecuteAnalysis()
+    args = t.get_params()
+
+    #with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executer:
+    #    executer.map(t.test_wrapper, args)
+
     def corr_check():
         center = (1920//2, 1080//2)
-        path = ".\\data\\Inoue\\sqrt_10\\test11.xlsx"
+        path = ".\\data\\Murakami\\linear_10\\test15.xlsx"
         test = Analyzer(path, center)
 
         test.param_tlead_corr()
-    corr_check()
-
-    def test(param):
-        center = (1920 // 2, 1080 // 2)
-        test = Analyzer(".\\data\\Nishigaichi\\" + param + "\\test1.xlsx", center)
-        df = test.getDataFrame()
-        for i in range(2, 21):
-            path = ".\\data\\Nishigaichi\\" + param + "\\test" + str(i) + ".xlsx"
-            test = Analyzer(path, center)
-            df = df.append(test.getDataFrame())
-
-        df.to_excel(".\\data\\Nishigaichi\\" + param + "\\summary.xlsx")
-
-    # test(param="sqrt_10")
+    # corr_check()
 
     def analyze(param_x, param_y):
         modes = ["linear", "sqrt"]
@@ -582,8 +642,8 @@ if __name__ == "__main__":
     # analyze("MD", "ME")
 
     def route_checker():
-        path = ".\\data\\Inoue\\mouse\\test3.xlsx"
-        center = (1920//2, 1080//2)\
+        path = ".\\data\\Murakami\\linear_10\\test15.xlsx"
+        center = (1920//2, 1080//2)
         test = Analyzer(path, center)
 
         test.check_route()

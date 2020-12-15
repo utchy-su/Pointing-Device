@@ -38,15 +38,16 @@ def bar_plot():
 
 
 def hist_plot():
-    param = "MD"
-    lin10 = pd.read_excel(".\\data\\Uchino\\linear_10\\summary.xlsx")
-    sqrt10 = pd.read_excel(".\\data\\Uchino\\sqrt_10\\summary.xlsx")
+    param = "mean_tlead"
+    lin10 = pd.read_excel(".\\data\\Iwata\\linear_10\\summary.xlsx")
+    sqrt10 = pd.read_excel(".\\data\\Iwata\\sqrt_10\\summary.xlsx")
+    mouse = pd.read_excel(".\\data\\Iwata\\mouse\\summary.xlsx")
 
-    # md = lin10[param]
-    md = sqrt10[param]
+    datas = [lin10, sqrt10, mouse]
 
-    plt.hist(md)
-    plt.show()
+    for d in datas:
+        plt.hist(d[param], bins=30)
+        plt.show()
 
 
 def logistic_validation():
@@ -84,4 +85,4 @@ def logistic_validation():
 
 
 if __name__ == "__main__":
-    logistic_validation()
+    hist_plot()

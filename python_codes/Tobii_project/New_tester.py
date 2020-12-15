@@ -459,7 +459,7 @@ if __name__ == "__main__":
         angles = False
     """
 
-    path = ".\\data\\Murakami\\sqrt_10\\test20.xlsx"
+    path = ".\\data\\sample.xlsx"
     # ファイルを保存したい場所のパスに保存先のフォルダを指定
     # file_name.xlsxを保存するときのファイル名に変更
 
@@ -472,5 +472,5 @@ if __name__ == "__main__":
 
     # 例：デスクトップにtest.xlsxという名前で保存したいのであれば
     #    C:Users/FUJITSU/Desktop/test.xlsx  というパスになるかと思います。
-    test = Tester(path, measure_angles=True, com_port=COMPORT)
+    test = Tester(path, measure_angles=False, com_port=COMPORT)
     test.main()
