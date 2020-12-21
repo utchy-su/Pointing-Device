@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from sklearn.linear_model import LogisticRegression
+import seaborn as sns
 
 
 def bar_plot():
@@ -83,6 +84,36 @@ def logistic_validation():
     plt.ylabel("$t_lead$")
     plt.show()
 
+class SeabornTest:
+
+    def __init__(self):
+        pass
+
+    def generate_concatenated_data(self, subject):
+        linear = pd.read_excel(".\\data\\" + subject + "\\linear_10\\summary.xlsx")
+        sqrt = pd.read_excel(".\\data\\" + subject + "\\sqrt_10\\summary.xlsx")
+        # mouse = pd.read_excel(".\\data\\" + subject + "\\mouse\\summary.xlsx")
+
+        label = ["linear"]*len(linear) + ["sqrt"]*len(sqrt)
+        label = pd.Series(label, name="label")
+
+        params = ["MD", "ME", "Throughput", "mean_tlead"]
+        linear = linear[params]
+        sqrt = sqrt[params]
+        # mouse = mouse[params]
+
+        df = pd.concat([linear, sqrt], ignore_index=True)
+        df = pd.concat([df, label], axis=1)
+
+        print(df)
+        return df
+
+    def data_plot(self):
+        df = self.generate_concatenated_data("Inoue")
+        sns.pairplot(df, hue="label", plot_kws={"alpha": 0.5})
+        plt.show()
+
 
 if __name__ == "__main__":
-    hist_plot()
+    test = SeabornTest()
+    test.data_plot()

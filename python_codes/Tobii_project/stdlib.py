@@ -1,4 +1,6 @@
 import pandas as pd
+from Data_store import DataFrames
+import numpy as np
 
 
 class MyLibrary:
@@ -20,4 +22,3 @@ class MyLibrary:
         HQ = Q3 + 1.5*IQR
 
         return LQ, HQ
-

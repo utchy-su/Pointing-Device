@@ -61,32 +61,11 @@ class CorrAnalysis:
 
     def ME_gaze_correlation(self):
         data = pd.read_excel(self.path)
-        me = data.ME
-        x_corr = data.x_corr
-        y_corr = data.y_corr
 
-        plt.plot(me, x_corr, "o")
-        plt.plot(me, y_corr, "o")
-        plt.ylim(-1.01, 1.01)
-        plt.grid()
-        plt.show()
-
-    def check_DGM_distribution(self):
-        data = DataFrames(self.path)
-
-        dgm = data.get_dist_gaze_pointer()
-
-        dgm = np.hstack(dgm)
-
-        plt.hist(dgm, bins=50)
-        plt.show()
+        return data.MD, data.ME
 
 
 if __name__ == "__main__":
-    path = ".\\data\\Iwata\\linear_10\\test10.xlsx"
-    test = CorrAnalysis(path)
-    test.check_DGM_distribution()
-    """
     path = ".\\data\\Uchino\\mouse\\test18.xlsx"
     test = CorrAnalysis(path)
     # test.x_corr()
@@ -94,9 +73,12 @@ if __name__ == "__main__":
 
     subject = ["Iwata", "Inoue", "Uchino", "Murakami"]
     param = ["linear_10", "sqrt_10", "mouse"]
+    X, Y = [], []
     for s in subject:
         for p in param:
             path = ".\\data\\" + s + "\\" + p + "\\summary.xlsx"
             t = CorrAnalysis(path)
-            t.ME_gaze_correlation()
-    """
+            x, y = t.ME_gaze_correlation()
+            plt.plot(x, y, "o", label=s+"/"+p)
+    plt.legend()
+    plt.show()
