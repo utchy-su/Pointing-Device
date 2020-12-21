@@ -475,8 +475,6 @@ class Analyzer:
 
             # md = self.__data.get_dist_gaze_pointer()[i][1:]
 
-            print(tlead.count(0), tlead.count(1))
-
             x.append(dist_dt)
             y.append(tlead)
         x = np.hstack(x)
@@ -607,7 +605,7 @@ if __name__ == "__main__":
 
     def corr_check():
         center = (1920//2, 1080//2)
-        path = ".\\data\\Murakami\\linear_10\\test15.xlsx"
+        path = "./data/Murakami/linear_10/test15.xlsx"
         test = Analyzer(path, center)
 
         test.param_tlead_corr()
@@ -616,7 +614,7 @@ if __name__ == "__main__":
     def analyze(param_x, param_y):
         modes = ["linear", "sqrt"]
         for mode in modes:
-            df = pd.read_excel(".\\data\\Uchino\\" + mode + "_10\\summary.xlsx")
+            df = pd.read_excel("./data/Uchino/" + mode + "_10/summary.xlsx")
             print(df)
             x = df[param_x]
             xLQ, xHQ = lib.get_valid_range(x)

@@ -16,7 +16,6 @@ import math
 import time
 import pandas as pd
 import pyautogui as pag
-from win32api import GetSystemMetrics
 import os
 
 from serial_com import Serial
@@ -83,7 +82,7 @@ class Tester:
         self.isSuccessful = []
         self.__base = None
         self.__test = None
-        self.__screen_size = (GetSystemMetrics(0), GetSystemMetrics(1))
+        self.__screen_size = (1920, 1080)
         self.__center_x, self.__center_y = screen_size[0]//2, screen_size[1]//2
         self.path = path
         if measure_angles:
@@ -439,6 +438,7 @@ class Tester:
                         del self.__test # counter回目に対応するTaskAxisを消す
                         self.__test = TaskAxis(counter, screen, Tester.__ORDERS, Tester.__TGT_RADIUS, Tester.__LAYOUT_RADIUS, Tester.__ALLOWABLE_ERROR, c)
 
+
 if __name__ == "__main__":
     import glob
     import sys
@@ -459,11 +459,11 @@ if __name__ == "__main__":
         angles = False
     """
 
-    path = ".\\data\\sample.xlsx"
+    path = "./data/sample.xlsx"
     # ファイルを保存したい場所のパスに保存先のフォルダを指定
     # file_name.xlsxを保存するときのファイル名に変更
 
-    file_list = glob.glob(".\\data\\**", recursive=True)
+    file_list = glob.glob("./data/**", recursive=True)
     if path in file_list:
         exit("同名ファイルが存在します．違うファイル名を指定してください．")
 

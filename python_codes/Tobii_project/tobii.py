@@ -1,7 +1,7 @@
 from collections import deque
 import tobii_research as tb
 import numpy as np
-import win32api
+# import win32api
 
 
 class Tobii:
@@ -29,10 +29,6 @@ class Tobii:
             return 0, 0
 
         return int(self.x), int(self.y)
-
-    def move_to_gaze_position(self):
-        x, y = self.get_coordinates()
-        win32api.SetCursorPos((x, y))
 
     def gaze_data_callback(self, gaze_data):
         # 左目の視線と画面平面の交点座標(x, y)

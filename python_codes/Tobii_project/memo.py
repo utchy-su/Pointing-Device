@@ -3,6 +3,40 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from sklearn.linear_model import LogisticRegression
+from stdlib import MyLibrary as lib
+from Data_store import DataFrames
+
+
+def tlead_param_corr(subject, mode, threshold):
+    param = lib.get_large_me_param(subject, mode, threshold)
+    x_, y_ = [], []
+    for p in param:
+        attempt, click = p
+        path = "./data/{}/{}/test{}.xlsx".format(subject, mode, attempt)
+        df = DataFrames(path)
+
+        x, y = df.get_cods()['x'], df.get_cods()['y']
+        x = x[click-1]
+        y = y[click-1]
+        a, b, c = lib.ideal_route(click-1)
+
+        dist = np.array([abs(a * x + b * y + c) / np.sqrt(a ** 2 + b ** 2) for x, y in zip(x, y)])
+
+        # t_lead = df.get_tlead()[click-1]
+        # t_lead = [0 if x < 0 else 1 for x in t_lead] + [0]
+
+        md = df.get_dist_gaze_pointer()[click-1]
+
+        x_.append(md)
+        y_.append(list(dist))
+
+    x_ = np.hstack(x_)
+    y_ = np.hstack(y_)
+
+    x_, y_ = lib.get_valid_data(x_, y_)
+
+    plt.plot(x_, y_, "o")
+    plt.show()
 
 
 def bar_plot():
@@ -85,4 +119,4 @@ def logistic_validation():
 
 
 if __name__ == "__main__":
-    hist_plot()
+    tlead_param_corr("Nishigaichi", "linear_10", 20)

@@ -2,8 +2,8 @@ import tobii_research as tb
 import pygame
 import time
 from pygame.locals import *
-from win32api import GetSystemMetrics
-import win32api
+# from win32api import GetSystemMetrics
+# import win32api
 import numpy as np
 
 
