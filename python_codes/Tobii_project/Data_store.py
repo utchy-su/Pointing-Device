@@ -50,6 +50,7 @@ class DataFrames:
         self.__timestamp = []
         self.__gaze_velocity = []
         self.__tlead = []
+        self.__outlier_index = []
         self.__flattening_range = flattening_range
         self.__timestamp_calculator()
         self.__cods_calculator()  # 座標データをcodsに格納
@@ -153,6 +154,9 @@ class DataFrames:
             x = self.__data[x_index].dropna(how="all")
             y = self.__data[y_index].dropna(how="all")
 
+            if (0 in list(x)) or (0 in list(y)):
+                self.__outlier_index.append(i)
+
             x = [np.mean(x[j:j+self.__flattening_range]) for j in range(0, len(x)-self.__flattening_range, self.__flattening_range)]
             y = [np.mean(y[j:j+self.__flattening_range]) for j in range(0, len(y)-self.__flattening_range, self.__flattening_range)]
 
@@ -255,6 +259,9 @@ class DataFrames:
 
     def get_tlead(self):
         return self.__tlead
+
+    def get_outlier_index(self):
+        return self.__outlier_index
 
 class Angle_Analysis:
 

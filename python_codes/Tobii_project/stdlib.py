@@ -1,5 +1,6 @@
 import pandas as pd
 from New_tester import Tester
+from Data_store import DataFrames
 import numpy as np
 
 
@@ -66,4 +67,4 @@ class MyLibrary:
         return a, b, c
 
 if __name__ == "__main__":
-    val = 20
+    pass

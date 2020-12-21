@@ -71,6 +71,7 @@ class Analyzer:
         self.__time = self.__data.get_time()
         self.__timestamp = self.__data.get_timestamp()
         self.__tgt_radius = Tester.getTgtRadius()
+        self.__outliers = self.__data.get_outlier_index()
         self.__cx = center[0]
         self.__cy = center[1]
 
@@ -509,6 +510,20 @@ class Analyzer:
         for i in range(15):
             self.__show_route(i, screen)
 
+    def __data_cleansing(self, df):
+        pd.set_option('display.max_rows', 500)
+        # print(df)
+        # print("outliers:", self.__outliers)
+        df = df.dropna(how="any")
+        df = df[df.gaze_MV > 0]
+        df = df[df.x_corr > 0]
+        df = df[df.y_corr > 0]
+        df = df.drop(self.__outliers)
+        # print("|\n|\n\\/")
+        # print(df)
+        # print("--------------")
+        return df
+
     def getDataFrame(self):
         """
         TRE, TAC,...を計算してpandasのデータフレームに格納します。
@@ -553,7 +568,7 @@ class Analyzer:
             'x_corr': x_corr,
             'y_corr': y_corr
         })
-
+        df = self.__data_cleansing(df)
         return df
 
 
@@ -576,15 +591,14 @@ class ExecuteAnalysis:
         for i in range(2, 21):
             path = ".\\data\\" + subject + "\\" + param + "\\test" + str(i) + ".xlsx"
             t = Analyzer(path, center)
-            df = df.append(t.getDataFrame())
-
-        df = self.data_cleansing(df)
+            df = df.append(t.getDataFrame(), ignore_index=True)
+        print(df)
         df.to_excel(".\\data\\" + subject + "\\" + param + "\\summary.xlsx")
 
     def get_params(self):
         args = []
-        subject = ["Murakami", "Inoue", "Iwata", "Uchino"]
-        param = ["linear_10", "sqrt_10", "mouse"]
+        subject = ["Nishigaichi"]
+        param = ["linear_10", "mouse"]
 
         for s in subject:
             for p in param:
@@ -600,8 +614,8 @@ if __name__ == "__main__":
     t = ExecuteAnalysis()
     args = t.get_params()
 
-    #with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executer:
-    #    executer.map(t.test_wrapper, args)
+    with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executer:
+        executer.map(t.test_wrapper, args)
 
     def corr_check():
         center = (1920//2, 1080//2)
