@@ -590,11 +590,11 @@ class Tester:
 
 
 if __name__ == "__main__":
-    """
     import glob
     import sys
     path = sys.argv[1]
-    measure_angles = sys.argv[2]
+    # measure_angles = sys.argv[2]
+    measure_angles = False
 
     file_list = glob.glob("./**", recursive=True)
     #ディレクトリ内のファイル名を全取得
@@ -607,16 +607,15 @@ if __name__ == "__main__":
         angles = True
     else:
         angles = False
-    """
 
-    path = "ファイルを保存したい場所のパス/file_name.xlsx"
+    # path = "ファイルを保存したい場所のパス/file_name.xlsx"
     #ファイルを保存したい場所のパスに保存先のフォルダを指定
     #file_name.xlsxを保存するときのファイル名に変更
 
-    # COMPORT = "/dev/ttyACM0"
-    COMPORT = "COM19" #ここは自分のarduinoのCOMポート番号に変更
+    COMPORT = "/dev/ttyACM0"
+    # COMPORT = "COM19" #ここは自分のarduinoのCOMポート番号に変更
 
     # 例：デスクトップにtest.xlsxという名前で保存したいのであれば
     #    C:Users/FUJITSU/Desktop/test.xlsx  というパスになるかと思います。
-    test = Tester(path, measure_angles=True, com_port=COMPORT)
+    test = Tester(path, measure_angles=False, com_port=COMPORT)
     test.main()

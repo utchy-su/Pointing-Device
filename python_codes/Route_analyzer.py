@@ -1,3 +1,4 @@
+from collections import defaultdict
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -25,47 +26,54 @@ class Route_analyzer:
 
     """
 
-    def __init__(self, path):
+    def __init__(self, path, path2):
         """
         コンストラクタです。pathには各動作則・ゲインを解析したあとのsummary.xlsxを指定
         """
         self.__df = pd.read_excel(path)
-        self.__meanEachRoute = { "TRE":[], "ME":[], "Throughput":[], "meanRolls":[], "meanPitchs":[]}
-        self.__stdEachRoute = { "TRE":[], "ME":[], "Throughput":[], "meanRolls":[], "meanPitchs":[]}
-        self.__calculateMeanForEachRoute()
+        self.__meanEachRoute = defaultdict(list)
+        self.__stdEachRoute = defaultdict(list)
+        self.__calculateMeanForEachRoute(self.__df, self.__meanEachRoute, self.__stdEachRoute)
 
-    def getMeanEachRoute(self, param):
-        return self.__meanEachRoute[param]
+        self.__df2 = pd.read_excel(path2)
+        self.__meanEachRoute2 = defaultdict(list)
+        self.__stdEachRoute2 = defaultdict(list)
+        self.__calculateMeanForEachRoute(self.__df2, self.__meanEachRoute2, self.__stdEachRoute2)
+        print(self.__df)
+        print(self.__df2)
 
-    def getStdEachRoute(self, param):
-        return self.__stdEachRoute[param]
 
-
-    def __calculateMeanForEachRoute(self):
+    def __calculateMeanForEachRoute(self, reference_data, mean_container, std_container):
         """
         クリック==iのデータだけ抽出して平均を取る関数。
         self.__dfが各クリックに関しての総データを保持しているので、その中から特定のクリック(i.e.ルート)
         に関する情報だけ抽出します
         """
         for i in range(1, 16, 1):
-            self.__meanEachRoute["TRE"].append(self.__df[self.__df.click == i].TRE.mean())
-            self.__meanEachRoute["ME"].append(self.__df[self.__df.click == i].ME.mean())
-            self.__meanEachRoute["Throughput"].append(self.__df[self.__df.click == i].Throughput.mean())
-            self.__meanEachRoute["meanRolls"].append(self.__df[self.__df.click == i].mean_roll.mean())
-            self.__meanEachRoute["meanPitchs"].append(self.__df[self.__df.click == i].mean_pitch.mean())
+            mean_container["TRE"].append(reference_data[reference_data.click == i].TRE.mean())
+            mean_container["ME"].append(reference_data[reference_data.click == i].ME.mean())
+            mean_container["MO"].append(reference_data[reference_data.click == i].MO.mean())
+            mean_container["MDC"].append(reference_data[reference_data.click == i].MDC.mean())
+            mean_container["ODC"].append(reference_data[reference_data.click == i].ODC.mean())
+            mean_container["Throughput"].append(reference_data[reference_data.click == i].Throughput.mean())
+            mean_container["meanRolls"].append(reference_data[reference_data.click == i].mean_roll.mean())
+            mean_container["meanPitchs"].append(reference_data[reference_data.click == i].mean_pitch.mean())
 
-            self.__stdEachRoute["TRE"].append(self.__df[self.__df.click == i].TRE.std())
-            self.__stdEachRoute["ME"].append(self.__df[self.__df.click == i].ME.std())
-            self.__stdEachRoute["Throughput"].append(self.__df[self.__df.click == i].Throughput.std())
-            self.__stdEachRoute["meanRolls"].append(self.__df[self.__df.click == i].mean_roll.std())
-            self.__stdEachRoute["meanPitchs"].append(self.__df[self.__df.click == i].mean_pitch.std())
+            std_container["TRE"].append(reference_data[reference_data.click == i].TRE.std())
+            std_container["ME"].append(reference_data[reference_data.click == i].ME.std())
+            std_container["MO"].append(reference_data[reference_data.click == i].MO.std())
+            std_container["MDC"].append(reference_data[reference_data.click == i].MDC.std())
+            std_container["ODC"].append(reference_data[reference_data.click == i].ODC.std())
+            std_container["Throughput"].append(reference_data[reference_data.click == i].Throughput.std())
+            std_container["meanRolls"].append(reference_data[reference_data.click == i].mean_roll.std())
+            std_container["meanPitchs"].append(reference_data[reference_data.click == i].mean_pitch.std())
 
-    def plotCorr(self, param1, param2):
+    def plotCorr(self, data, param1, param2):
         # x1 = pd.Series(self.__meanEachRoute[param1])
         # x2 = pd.Series(self.__meanEachRoute[param2])
 
-        x1 = pd.Series(self.__df[param1])
-        x2 = pd.Series(self.__df[param2])
+        x1 = pd.Series(data[param1])
+        x2 = pd.Series(data[param2])
 
         print(x1.corr(x2))
 
@@ -75,26 +83,33 @@ class Route_analyzer:
         plt.title("corr = " + str(x1.corr(x2)))
         plt.show()
 
-    def plotHist(self, param):
+    def plotHist(self, data, param):
         """
         各パラメータの結果のヒストグラム
         """
-        x = self.__df[param]
+        x = data[param]
 
         # plt.xlim(0, 40)
         plt.hist(x, bins=20)
         plt.show()
 
-    def plotMeans(self, param):
+    def plotMeans(self, param, label=None):
+        if label is None:
+            label = (param, param)
         criterion = self.__meanEachRoute[param]
         std = self.__stdEachRoute[param]
+        criterion2 = self.__meanEachRoute2[param]
+        std2 = self.__stdEachRoute2[param]
         x = np.arange(1, len(criterion)+1, 1)
 
-        plt.plot(x, criterion, '-o', label=param, color="black")
+        plt.plot(x, criterion, '-o', label=label[0])
+        plt.plot(x, criterion2, '-o', label=label[1])
         plt.errorbar(x, criterion, yerr=std, ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5 ,ls="none")
+        plt.errorbar(x, criterion2, yerr=std2, ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
         plt.legend()
         # plt.ylim(0,  * 1.2)
         # plt.grid()
+        plt.title(param)
         plt.show()
 
     def showRoutes(self):
@@ -192,4 +207,10 @@ def compareEachRoute(param):
 if __name__ == "__main__":
     import sys
     param = sys.argv[1]
-    compareEachRoute(param)
+    path = "./Nishigaichi/QUHA/summary.xlsx"
+    path2 = "./QUHA_demo/summary.xlsx"
+    test = Route_analyzer(path, path2)
+    test.plotMeans(param, ["Nishigaichi", "Uchino"])
+    # test.plotHist(param)
+    # test.plotCorr("Throughput", param)
+    # compareEachRoute(param)
