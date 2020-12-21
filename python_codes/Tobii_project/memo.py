@@ -43,8 +43,8 @@ def bar_plot():
     param = "ME"
     gaze_param = "gaze_ME"
 
-    lin10 = pd.read_excel(".\\data\\Uchino\\linear_10\\summary.xlsx")
-    sqrt10 = pd.read_excel(".\\data\\Uchino\\sqrt_10\\summary.xlsx")
+    lin10 = pd.read_excel("/dat/Uchino/linear_10/summary.xlsx")
+    sqrt10 = pd.read_excel("/dat/Uchino/sqrt_10/summary.xlsx")
 
     lin_mean = lin10[param].mean()
     sq_mean = sqrt10[param].mean()
@@ -73,9 +73,9 @@ def bar_plot():
 
 def hist_plot():
     param = "mean_tlead"
-    lin10 = pd.read_excel(".\\data\\Iwata\\linear_10\\summary.xlsx")
-    sqrt10 = pd.read_excel(".\\data\\Iwata\\sqrt_10\\summary.xlsx")
-    mouse = pd.read_excel(".\\data\\Iwata\\mouse\\summary.xlsx")
+    lin10 = pd.read_excel("/dat/Iwata/linear_10/summary.xlsx")
+    sqrt10 = pd.read_excel("/dat/Iwata/sqrt_10/summary.xlsx")
+    mouse = pd.read_excel("/dat/Iwata/mouse/summary.xlsx")
 
     datas = [lin10, sqrt10, mouse]
 
@@ -106,6 +106,7 @@ def logistic_validation():
     p = lambda v: 1/(1 + np.exp(-(w0 + w1*v)))
 
     x_range = np.arange(2, 8, 0.01)
+
     prediction = np.array([p(item) for item in x_range])
 
     # for x_, y_ in zip(x, y):
@@ -119,4 +120,7 @@ def logistic_validation():
 
 
 if __name__ == "__main__":
-    tlead_param_corr("Nishigaichi", "linear_10", 20)
+    tlead_param_corr("Inoue", "linear_10", 25)
+    tlead_param_corr("Iwata", "linear_10", 25)
+    # tlead_param_corr("Murakami", "linear_10", 30)
+    tlead_param_corr("Uchino", "linear_10", 25)
