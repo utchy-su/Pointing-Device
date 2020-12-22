@@ -514,12 +514,12 @@ class Analyzer:
         pd.set_option('display.max_rows', 500)
         # print(df)
         # print("outliers:", self.__outliers)
+        df = df.drop(self.__outliers)
         df = df.dropna(how="any")
         df = df[df.gaze_MV > 0]
         df = df[df.x_corr > 0]
         df = df[df.y_corr > 0]
-        df = df.drop(self.__outliers)
-        # print("|\n|\n\\/")
+        # print("|\n|\n//")
         # print(df)
         # print("--------------")
         return df
@@ -586,14 +586,14 @@ class ExecuteAnalysis:
 
     def test(self, subject, param):
         center = (1920 // 2, 1080 // 2)
-        test = Analyzer(".\\data\\" + subject + "\\" + param + "\\test1.xlsx", center)
+        test = Analyzer("./data/" + subject + "/" + param + "/test1.xlsx", center)
         df = test.getDataFrame()
         for i in range(2, 21):
-            path = ".\\data\\" + subject + "\\" + param + "\\test" + str(i) + ".xlsx"
+            path = "./data/" + subject + "/" + param + "/test" + str(i) + ".xlsx"
             t = Analyzer(path, center)
             df = df.append(t.getDataFrame(), ignore_index=True)
         print(df)
-        df.to_excel(".\\data\\" + subject + "\\" + param + "\\summary.xlsx")
+        df.to_excel("./data/" + subject + "/" + param + "/summary.xlsx")
 
     def get_params(self):
         args = []
@@ -612,10 +612,11 @@ class ExecuteAnalysis:
 
 if __name__ == "__main__":
     t = ExecuteAnalysis()
+    t.test(subject="Nishigaichi", param="mouse")
     args = t.get_params()
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executer:
-        executer.map(t.test_wrapper, args)
+    # with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executer:
+        # executer.map(t.test_wrapper, args)
 
     def corr_check():
         center = (1920//2, 1080//2)
@@ -654,7 +655,7 @@ if __name__ == "__main__":
     # analyze("MD", "ME")
 
     def route_checker():
-        path = ".\\data\\Murakami\\linear_10\\test15.xlsx"
+        path = "./data/Murakami/linear_10/test15.xlsx"
         center = (1920//2, 1080//2)
         test = Analyzer(path, center)
 
