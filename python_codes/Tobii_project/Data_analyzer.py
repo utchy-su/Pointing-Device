@@ -32,6 +32,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 import concurrent.futures
 from multiprocessing import Pool
+from sklearn.metrics import accuracy_score
 
 
 class Analyzer:
@@ -466,6 +467,11 @@ class Analyzer:
             x_cods = self.__cods['x'][i]
             y_cods = self.__cods['y'][i]
             t = self.__timestamp[i]
+            gaze_x = self.__gaze_cods['x'][i]
+            gaze_y = self.__gaze_cods['y'][i]
+
+            if (0 in gaze_x) or (0 in gaze_y):
+                continue
 
             dist = np.array([abs(a * x + b * y + c) / np.sqrt(a ** 2 + b ** 2) for x, y in zip(x_cods, y_cods)])
 
@@ -514,13 +520,11 @@ class Analyzer:
 
     def __data_cleansing(self, df):
         pd.set_option('display.max_rows', 500)
-        # print(df)
-        # print("outliers:", self.__outliers)
-        df = df.dropna(how="any")
-        df = df[df.gaze_MV > 0]
-        df = df[df.x_corr > 0]
-        df = df[df.y_corr > 0]
         df = df.drop(self.__outliers)
+        df = df.dropna()
+        df = df[df.gaze_MV > 0]
+        df = df[df.x_corr > 0.5]
+        df = df[df.y_corr > 0.5]
         # print("|\n|\n\\/")
         # print(df)
         # print("--------------")
@@ -591,72 +595,108 @@ class ExecuteAnalysis:
         test = Analyzer(".\\data\\" + subject + "\\" + param + "\\test1.xlsx", center)
         df = test.getDataFrame()
         for i in range(2, 21):
+            print("now: ", subject, param, i)
             path = ".\\data\\" + subject + "\\" + param + "\\test" + str(i) + ".xlsx"
             t = Analyzer(path, center)
             df = df.append(t.getDataFrame(), ignore_index=True)
-        print(df)
         df.to_excel(".\\data\\" + subject + "\\" + param + "\\summary.xlsx")
+
 
     def get_params(self):
         args = []
-        subject = ["Nishigaichi"]
-        param = ["linear_10", "mouse"]
+        subject = ["Murakami", "Uchino", "Inoue", "Iwata"]
+        param = ["linear_10", "mouse", "sqrt_10"]
 
         for s in subject:
             for p in param:
                 args.append((s, p))
-
         return args
 
     def test_wrapper(self, a):
         self.test(*a)
 
+    def logistic_regression(self, subject):
+        center = (1920//2, 1080//2)
+        linear = pd.read_excel(".\\data\\" + subject + "\\linear_10\\summary.xlsx")
+        sqrt = pd.read_excel(".\\data\\" + subject + "\\mouse\\summary.xlsx")
+        linear_label = [1 for _ in range(len(linear))]
+        sqrt_label = [0 for _ in range(len(sqrt))]
+        linear_label = pd.Series(linear_label)
+        sqrt_label = pd.Series(sqrt_label)
+
+        label = pd.concat([linear_label, sqrt_label], ignore_index=True)
+        MD = pd.concat([linear.Throughput, sqrt.Throughput], ignore_index=True)
+
+        MD_train, MD_test, label_train, label_test = train_test_split(MD, label, test_size=0.2, random_state=0)
+        MD_train = np.array(MD_train).reshape(-1, 1)
+        label_train = np.array(label_train)
+
+        lr = LogisticRegression()
+        lr.fit(MD_train, label_train)
+
+        w0 = lr.intercept_[0]
+        w1 = lr.coef_[0][0]
+
+        p = lambda v: 1/(1 + np.exp(-(w0+w1*v)))
+
+        label_predict = lr.predict(np.array(MD_test).reshape(-1, 1))
+        print("accuracy: ", accuracy_score(y_true=label_test, y_pred=label_predict))
+        x_range = np.arange(min(MD)*0.8, max(MD)*1.2, 0.01)
+        prediction = np.array([p(x_) for x_ in x_range])
+        plt.plot(MD, label, "o", label="MD-mode")
+        plt.plot(x_range, prediction, label="fitted curve")
+        plt.legend()
+        plt.show()
+
 
 if __name__ == "__main__":
     t = ExecuteAnalysis()
-    args = t.get_params()
+   #  t.logistic_regression("Nishigaichi")
+    # params = t.get_params()
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executer:
-        executer.map(t.test_wrapper, args)
+    # with concurrent.futures.ProcessPoolExecutor(max_workers=4) as e:
+        # e.map(t.test_wrapper, params)
 
     def corr_check():
         center = (1920//2, 1080//2)
+        #TODO:MEがでかいやつをピックアップしてME-tleadの関係をみる
         path = ".\\data\\Murakami\\linear_10\\test15.xlsx"
         test = Analyzer(path, center)
 
         test.param_tlead_corr()
-    # corr_check()
+    corr_check()
 
     def analyze(param_x, param_y):
-        modes = ["linear", "sqrt"]
-        for mode in modes:
-            df = pd.read_excel(".\\data\\Uchino\\" + mode + "_10\\summary.xlsx")
-            print(df)
-            x = df[param_x]
-            xLQ, xHQ = lib.get_valid_range(x)
-            y = df[param_y]
-            yLQ, yHQ = lib.get_valid_range(y)
-            x, y = x[(xLQ < x) & (x < xHQ)], y[(xLQ < x) & (x < xHQ)]
-            x, y = x[(yLQ < y) & (y < yHQ)], y[(yLQ < y) & (y < yHQ)]
-            plt.plot(x, y, "o", alpha=0.3, label=mode)
+        modes = ["linear_10", "sqrt_10"]
+        subject = ["Inoue", "Murakami", "Uchino", "Iwata"]
+        for person in subject:
+            for mode in modes:
+                df = pd.read_excel(".\\data\\" + person + "\\" + mode + "\\summary.xlsx")
+                x = df[param_x]
+                xLQ, xHQ = lib.get_valid_range(x)
+                y = df[param_y]
+                yLQ, yHQ = lib.get_valid_range(y)
+                x, y = x[(xLQ < x) & (x < xHQ)], y[(xLQ < x) & (x < xHQ)]
+                x, y = x[(yLQ < y) & (y < yHQ)], y[(yLQ < y) & (y < yHQ)]
+                plt.plot(x, y, "o", alpha=0.3, label=mode)
 
-        # a, b = np.polyfit(x, y, 1)
-        # l = [a*x_ + b for x_ in x]
-        # plt.plot(x2, y2, "o", alpha=0.5)
-        # plt.plot(x, z, "o")
-        # plt.plot(x, l, "-", label="$y=$" + str(a)[0:6] + "$x+$" + str(b)[0:6])
-        # plt.title("corr= " + str(x.corr(y)))
-        plt.xlim(0, 150)
-        # plt.ylim(0, 1.5)
-        plt.xlabel("Mean Distance Between Gaze and Position[px]")
-        # plt.ylabel("Throughput[bits/sec]")
-        plt.legend()
-        plt.show()
+            # a, b = np.polyfit(x, y, 1)
+            # l = [a*x_ + b for x_ in x]
+            # plt.plot(x2, y2, "o", alpha=0.5)
+            # plt.plot(x, z, "o")
+            # plt.plot(x, l, "-", label="$y=$" + str(a)[0:6] + "$x+$" + str(b)[0:6])
+            # plt.title("corr= " + str(x.corr(y))
+            # plt.ylim(0, 1.5)
+            plt.xlabel("Mean Distance Between Gaze and Position[px]")
+            # plt.ylabel("Throughput[bits/sec]")
+            plt.legend()
+            plt.savefig(".\\pictures\\aaa\\" + person + ".png")
+            plt.show()
 
     # analyze("MD", "ME")
 
     def route_checker():
-        path = ".\\data\\Murakami\\linear_10\\test15.xlsx"
+        path = ".\\data\\Iwata\\linear_10\\test1.xlsx"
         center = (1920//2, 1080//2)
         test = Analyzer(path, center)
 

@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+
 class CompareRoute:
 
     def __init__(self, param):
@@ -19,8 +20,8 @@ class CompareRoute:
         for i in range(self.N):
             path = ".\\data\\" + self.subject[i] + "\\" + self.param + "\\summary.xlsx"
             df = pd.read_excel(path)
-            horizontal = df.MD[(df.click == 1) | (df.click == 2) | (df.click == 3)]
-            vertical = df.MD[(df.click == 8) | (df.click == 9) | (df.click == 10)]
+            horizontal = df.ME[(df.click == 1) | (df.click == 2) | (df.click == 15)]
+            vertical = df.ME[(df.click == 8) | (df.click == 9) | (df.click == 10)]
             y1.append(horizontal.mean())
             y2.append(vertical.mean())
             std1.append(horizontal.std())
@@ -34,8 +35,10 @@ class CompareRoute:
         plt.errorbar(x2, y2, yerr=std2, ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
 
         plt.xticks(np.arange(1.15, self.N+1.15, 1), self.subject)
-        plt.tight_layout()
+        # plt.tight_layout()
         plt.legend()
+        plt.title(self.param)
+        plt.savefig(".\\pictures\\" + self.param + "MD" + ".png")
         plt.show()
 
 
