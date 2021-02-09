@@ -554,7 +554,6 @@ class Analyzer:
             'x_corr': x_corr,
             'y_corr': y_corr
         })
-        df = self.__data_cleansing(df)
         return df
 
 
@@ -572,14 +571,14 @@ class ExecuteAnalysis:
 
     def test(self, subject, param):
         center = (1920 // 2, 1080 // 2)
-        test = Analyzer("./data/" + subject + "/" + param + "/test1.xlsx", center)
+        test = Analyzer("./data_with_questionaire/" + subject + "/" + param + "/attempt1.xlsx")
         df = test.getDataFrame()
-        for i in range(2, 21):
-            path = "./data/" + subject + "/" + param + "/test" + str(i) + ".xlsx"
-            t = Analyzer(path, center)
+        for i in range(2, 11):
+            path = "./data_with_questionaire/" + subject + "/" + param + "/attempt" + str(i) + ".xlsx"
+            t = Analyzer(path)
             df = df.append(t.getDataFrame(), ignore_index=True)
         print(df)
-        df.to_excel("./data/" + subject + "/" + param + "/summary.xlsx")
+        df.to_excel("./data_with_questionaire/" + subject + "/" + param + "/summary.xlsx")
 
     def get_params(self):
         args = []
@@ -598,54 +597,10 @@ class ExecuteAnalysis:
 
 if __name__ == "__main__":
     t = ExecuteAnalysis()
-    t.test(subject="Nishigaichi", param="linear_10")
-    # args = t.get_params()
 
-    # with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executer:
-        # executer.map(t.test_wrapper, args)
+    subject = ["Sanematsu", "Sasaki"] #Kitamura, Matsuda, plus alpha
+    mode = ["linear", "sqrt", "quad"]
 
-    def corr_check():
-        center = (1920//2, 1080//2)
-        path = "./data/Murakami/linear_10/test15.xlsx"
-        test = Analyzer(path, center)
-
-        test.param_tlead_corr()
-    # corr_check()
-
-    def analyze(param_x, param_y):
-        modes = ["linear", "sqrt"]
-        for mode in modes:
-            df = pd.read_excel("./data/Uchino/" + mode + "_10/summary.xlsx")
-            print(df)
-            x = df[param_x]
-            xLQ, xHQ = lib.get_valid_range(x)
-            y = df[param_y]
-            yLQ, yHQ = lib.get_valid_range(y)
-            x, y = x[(xLQ < x) & (x < xHQ)], y[(xLQ < x) & (x < xHQ)]
-            x, y = x[(yLQ < y) & (y < yHQ)], y[(yLQ < y) & (y < yHQ)]
-            plt.plot(x, y, "o", alpha=0.3, label=mode)
-
-        # a, b = np.polyfit(x, y, 1)
-        # l = [a*x_ + b for x_ in x]
-        # plt.plot(x2, y2, "o", alpha=0.5)
-        # plt.plot(x, z, "o")
-        # plt.plot(x, l, "-", label="$y=$" + str(a)[0:6] + "$x+$" + str(b)[0:6])
-        # plt.title("corr= " + str(x.corr(y)))
-        plt.xlim(0, 150)
-        # plt.ylim(0, 1.5)
-        plt.xlabel("Mean Distance Between Gaze and Position[px]")
-        # plt.ylabel("Throughput[bits/sec]")
-        plt.legend()
-        plt.show()
-
-    # analyze("MD", "ME")
-
-    def route_checker():
-        path = "./data/Murakami/linear_10/test15.xlsx"
-        center = (1920//2, 1080//2)
-        test = Analyzer(path, center)
-
-        test.check_route()
-
-    # route_checker()
-    # analyze()
+    for s in subject:
+        for m in mode:
+            t.test(s, m)
