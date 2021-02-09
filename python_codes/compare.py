@@ -69,15 +69,15 @@ class Compare:
         quad10_std = self.quad10[param].std()
         quad20_std = self.quad20[param].std()
 
-        # quha_mean = self.quha[param].mean()
-        # quha_std = self.quha[param].std()
+        quha_mean = self.quha[param].mean()
+        quha_std = self.quha[param].std()
 
         # quha_uchino_mean = self.quha_uchino[param].mean()
         # quha_uchino_std = self.quha_uchino[param].std()
 
         x1 = [1, 2, 3]
         x2 = [1.3, 2.3, 3.3]
-        # x3 = [4.0]
+        x3 = [4.0]
         # x4 = [4.3]
 
         gain10_result = (lin10_mean, sqrt10_mean, quad10_mean)
@@ -91,15 +91,28 @@ class Compare:
         plt.bar(x2, gain20_result, width=0.3, label="gain = 20", align="center")
         plt.errorbar(x2, gain20_result, yerr=gain20_err, ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
 
-        # plt.bar(x3, [quha_mean], width=0.3, label="quha", align="center")
-        # plt.errorbar(x3, [quha_mean], yerr=[quha_std], ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
+        plt.bar(x3, [quha_mean], width=0.3, label="quha", align="center")
+        plt.errorbar(x3, [quha_mean], yerr=[quha_std], ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
 
         # plt.bar(x4, [quha_uchino_mean], width=0.3, label="quha_uchino", align="center", color="lightgreen")
         # plt.errorbar(x4, [quha_uchino_mean], yerr=[quha_uchino_std], ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
 
-        plt.xticks([1.15, 2.15, 3.15], ["linear", "sqrt", "quadratic"])
-        plt.ylim(0, 1.1)
-        plt.title(param + ": by each criterion")
+        # plt.xticks([1, 1.6, 2.2], ["linear", "sqrt", "quadratic"])
+        # plt.ylim(0, 1.1)
+
+        # plt.bar([1], [lin10_mean], label="linear$(k=10)$", align="center")
+        # plt.errorbar([1], [lin10_mean], yerr=[lin10_std], ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
+
+        # plt.bar([2], [sqrt10_mean], label="sqrt$(k=10)$", align="center")
+        # plt.errorbar([2], [sqrt10_mean], yerr=[sqrt10_std], ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
+
+        # plt.bar([3], [quad10_mean], label="quad$(k=10)$", align="center")
+        # plt.errorbar([3], [quad10_mean], yerr=[quad10_std], ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
+
+        plt.xticks([1, 2, 3, 4], ["linear", "sqrt", "quad", "quha"])
+
+
+        # plt.title(param + ": by each criterion")
         plt.legend()
         plt.tight_layout()
         plt.show()
@@ -109,22 +122,25 @@ class Compare:
         if not isinstance(gain, int):
             raise TypeError("param must be int type")
 
-        pitch = self.data[mode][gain//10-1]["mean_pitch"]
+        # pitch = self.data[mode][gain//10-1]["mean_pitch"]
         roll = self.data[mode][gain//10-1]["mean_roll"]
 
 
-        x = np.arange(0, len(pitch), 1)
+        x = np.arange(0, len(roll), 1)
 
-        plt.plot(x, pitch, 'o', label="mean pitch")
-        plt.plot(x, roll, 'o', label="mean roll")
-        plt.ylim(-20, 20)
+        # plt.plot(x, pitch, 'o', label="mean pitch")
+        # plt.plot(x, roll, 'o', label="mean roll")
+        # plt.ylim(-20, 20)
+        # plt.xlim(-40, 40)
+        plt.hist(roll, bins=50)
 
-        plt.title("gain = " + str(gain))
+        plt.title("gain={}, mode={}".format(gain, mode))
         # plt.axhline(max(pitch), ls="--", color="black", label="max")
-        plt.axhline(np.mean(pitch), ls="-.", color="black", label="mean")
+        # plt.axhline(np.mean(pitch), ls="-.", color="black", label="mean")
         # plt.axhline(max(roll), ls="--", color="black")
-        plt.axhline(np.mean(roll), ls="-.", color="black")
-        plt.legend()
+        # plt.axhline(np.mean(roll), ls="-.", color="black")
+        # plt.legend()
+
         plt.tight_layout()
         plt.show()
 
@@ -197,9 +213,9 @@ if __name__ == "__main__":
     test = Compare()
     # test.shapiro_test("TRE")
     # test.stats_test(gain = 20, param="TRE")
-    test.stats_test_for_trend(mode="quad", gain=10, param="Throughput")
+    # test.stats_test_for_trend(mode="quad", gain=10, param="Throughput")
     type = None
-    while False:
+    while True:
         type = int(input("0:performance comparison, 1:trend, 2:angles 3:quit  -->"))
         if type == 0:
             param = input("param?: ")

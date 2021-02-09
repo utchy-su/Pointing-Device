@@ -592,7 +592,8 @@ class Tester:
 if __name__ == "__main__":
     import glob
     import sys
-    path = sys.argv[1]
+    # path = sys.argv[1]
+    path = "./test_.xlsx"
     # measure_angles = sys.argv[2]
     measure_angles = False
 

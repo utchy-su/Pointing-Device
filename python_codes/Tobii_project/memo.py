@@ -3,10 +3,27 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from sklearn.linear_model import LogisticRegression
-from stdlib import MyLibrary as lib
+# from stdlib import MyLibrary as lib
 from Data_store import DataFrames
 import seaborn as sns
+from statsmodels.stats.multicomp import tukeyhsd, pairwise_tukeyhsd
 
+def angle_md_correlation(subject, mode):
+    x = []
+    y = []
+    for i in range(1, 21):
+        data = DataFrames("data/{}/{}_10/test{}.xlsx".format(subject, mode, i))
+
+        d = data.get_dist_gaze_pointer()
+        theta_x, theta_y = data.get_angles()["roll"], data.get_angles()["pitch"]
+
+        x = x + theta_x
+        y = y + d
+    x = np.hstack(x)
+    y = np.hstack(y)
+
+    plt.plot(x, y, "o")
+    plt.show()
 
 def tlead_param_corr(subject, mode, threshold):
     param = lib.get_large_me_param(subject, mode, threshold)
@@ -119,6 +136,74 @@ def logistic_validation():
     plt.ylabel("$t_lead$")
     plt.show()
 
+def subjects_comparison(param):
+    inoue = pd.read_excel("./data/Inoue/linear_10/summary.xlsx")[param]
+    iwata = pd.read_excel("./data/Iwata/linear_10/summary.xlsx")[param]
+    murakami = pd.read_excel("./data/Murakami/linear_10/summary.xlsx")[param]
+    nishi = pd.read_excel("./data/Nishigaichi/linear_10/summary.xlsx")[param]
+    uchino = pd.read_excel("./data/Uchino/linear_10/summary.xlsx")[param]
+
+    beginner = pd.concat([inoue, iwata])
+    intermediate = murakami
+    expert = pd.concat([nishi, uchino])
+    data = [beginner, intermediate, expert]
+    names = ["beginner", "intermediate", "expert"]
+    x_ticks = [i for i in range(1, 4)]
+    means = []
+    errs = []
+
+    for subject in data:
+        means.append(subject.mean())
+        errs.append(subject.std())
+
+    plt.bar(x_ticks, means, align="center")
+    plt.errorbar(x_ticks, means, yerr=errs, ecolor="black", capsize=3, capthick=0.5, ls="none")
+    plt.xticks(x_ticks, names)
+    plt.show()
+
+    data = np.hstack(data)
+    group = ["beginner"]*len(beginner) + ["intermediate"]*len(intermediate) + ["expert"]*len(expert)
+    res = pairwise_tukeyhsd(data, group)
+    print(res)
+
+def subjects_comparison_scatter(param1, param2):
+    x, y = [], []
+    mode = ["linear_10"]
+
+    x_max, y_max = -1, -1
+
+    for m in mode:
+        inoue = pd.read_excel("./data/Inoue/{}/summary.xlsx".format(m))
+        iwata = pd.read_excel("./data/Iwata/{}/summary.xlsx".format(m))
+        murakami = pd.read_excel("./data/Murakami/{}/summary.xlsx".format(m))
+        # nishi = pd.read_excel("./data/Nishigaichi/linear_10/summary.xlsx")
+        uchino = pd.read_excel("./data/Uchino/{}/summary.xlsx".format(m))
+
+        data = [inoue, iwata, murakami, uchino]
+        names = ["Inoue", "Iwata", "Murakami", "Uchino"]
+
+        for subject in data:
+            # x.append(subject[param1].mean())
+            # y.append(subject[param2].mean())
+
+            x = x + list(subject[param1])
+            y = y + list(subject[param2])
+
+            x_max = max(x_max, x[-1])
+            y_max = max(y_max, y[-1])
+
+    nishi = pd.read_excel("./data/Nishigaichi/linear_10/summary.xlsx")
+    x.append(nishi[param1].mean())
+    y.append(nishi[param2].mean())
+
+    plt.plot(x, y, "o")
+    # plt.xlim(0, x_max*1.1)
+    # plt.ylim(0, y_max*1.1)
+    plt.show()
+
+    x = pd.Series(x)
+    y = pd.Series(y)
+    print(x.corr(y))
 
 class SeabornTest:
 
@@ -154,5 +239,4 @@ class SeabornTest:
 
 
 if __name__ == "__main__":
-    test = SeabornTest()
-    test.data_plot("")
+    subjects_comparison("ME")

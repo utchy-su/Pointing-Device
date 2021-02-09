@@ -52,7 +52,7 @@ class Analyzer:
         ターゲット円の半径
     """
 
-    def __init__(self, path, center):
+    def __init__(self, path):
         """
         コンストラクタです。分析するexcelファイルのパスを受け取ります。
 
@@ -72,8 +72,8 @@ class Analyzer:
         self.__timestamp = self.__data.get_timestamp()
         self.__tgt_radius = Tester.getTgtRadius()
         self.__outliers = self.__data.get_outlier_index()
-        self.__cx = center[0]
-        self.__cy = center[1]
+        self.__cx = 1920//2
+        self.__cy = 1080//2
 
     def _MD_counter(self):
         """
@@ -150,59 +150,6 @@ class Analyzer:
         c = -x_tgt * y_prev + y_tgt * x_prev
 
         return a, b, c
-
-    def __show_route_initialize(self):
-        pygame.init()
-        screen_size = (1920, 1080)
-        screen = pygame.display.set_mode(screen_size)
-        screen.fill((255, 255, 255))
-
-        return screen
-
-    def __show_route(self, count, screen):
-        """
-        取得した座標データを利用して軌跡を表示する関数です。見る必要が無い場合はこの関数を
-        コメントアウトしてください。
-        """
-
-        x_prev = int(self.__cx + 200 * np.cos(np.pi * self.__order[count] / 8))
-        y_prev = int(self.__cy + 200 * np.sin(np.pi * self.__order[count] / 8))
-
-        x_tgt = int(self.__cx + 200 * np.cos(np.pi * self.__order[count + 1] / 8))
-        y_tgt = int(self.__cy + 200 * np.sin(np.pi * self.__order[count + 1] / 8))
-
-        pygame.draw.circle(screen, (0, 0, 0), (x_prev, y_prev), self.__tgt_radius, width=2)
-        pygame.draw.circle(screen, (0, 0, 0), (x_tgt, y_tgt), self.__tgt_radius, width=2)
-        pygame.draw.line(screen, (0, 0, 0), (x_prev, y_prev), (x_tgt, y_tgt), width=2)
-
-        x_route = self.__cods['x'][count]
-        y_route = self.__cods['y'][count]
-
-        gaze_x_route = self.__gaze_cods['x'][count]
-        gaze_y_route = self.__gaze_cods['y'][count]
-
-        for px, py, gx, gy in zip(x_route, y_route, gaze_x_route, gaze_y_route):
-            px, py, gx, gy = int(px), int(py), int(gx), int(gy)
-            pygame.draw.circle(screen, (242, 132, 52), (int(px), int(py)), 5)
-            gx1, gy1 = gx - 5, gy - 5
-            gx2, gy2 = gx + 5, gy - 5
-            gx3, gy3 = gx - 5, gy + 5
-            gx4, gy4 = gx + 5, gy + 5
-            pygame.draw.line(screen, color=(122, 25, 255), start_pos=(gx1, gy1), end_pos=(gx4, gy4), width=5)
-            pygame.draw.line(screen, color=(122, 25, 255), start_pos=(gx2, gy2), end_pos=(gx3, gy3), width=5)
-
-            pygame.time.delay(10)
-            pygame.display.update()
-        pygame.display.update()
-
-        while True:
-            for event in pygame.event.get():
-                if event.type == KEYDOWN:
-                    screen.fill((255, 255, 255))
-                    return
-
-                if event.type == QUIT:
-                    return
 
     def _TAC_counter(self):
         """
@@ -502,6 +449,59 @@ class Analyzer:
         plt.ylabel("$t_lead$")
         plt.show()
 
+    def __show_route_initialize(self):
+        pygame.init()
+        screen_size = (1920, 1080)
+        screen = pygame.display.set_mode(screen_size)
+        screen.fill((255, 255, 255))
+
+        return screen
+
+    def __show_route(self, count, screen):
+        """
+        取得した座標データを利用して軌跡を表示する関数です。見る必要が無い場合はこの関数を
+        コメントアウトしてください。
+        """
+
+        x_prev = int(self.__cx + 200 * np.cos(np.pi * self.__order[count] / 8))
+        y_prev = int(self.__cy + 200 * np.sin(np.pi * self.__order[count] / 8))
+
+        x_tgt = int(self.__cx + 200 * np.cos(np.pi * self.__order[count + 1] / 8))
+        y_tgt = int(self.__cy + 200 * np.sin(np.pi * self.__order[count + 1] / 8))
+
+        pygame.draw.circle(screen, (0, 0, 0), (x_prev, y_prev), self.__tgt_radius, width=2)
+        pygame.draw.circle(screen, (0, 0, 0), (x_tgt, y_tgt), self.__tgt_radius, width=2)
+        pygame.draw.line(screen, (0, 0, 0), (x_prev, y_prev), (x_tgt, y_tgt), width=2)
+
+        x_route = self.__cods['x'][count]
+        y_route = self.__cods['y'][count]
+
+        gaze_x_route = self.__gaze_cods['x'][count]
+        gaze_y_route = self.__gaze_cods['y'][count]
+
+        for px, py, gx, gy in zip(x_route, y_route, gaze_x_route, gaze_y_route):
+            px, py, gx, gy = int(px), int(py), int(gx), int(gy)
+            pygame.draw.circle(screen, (242, 132, 52), (int(px), int(py)), 5)
+            gx1, gy1 = gx - 5, gy - 5
+            gx2, gy2 = gx + 5, gy - 5
+            gx3, gy3 = gx - 5, gy + 5
+            gx4, gy4 = gx + 5, gy + 5
+            pygame.draw.line(screen, color=(122, 25, 255), start_pos=(gx1, gy1), end_pos=(gx4, gy4), width=5)
+            pygame.draw.line(screen, color=(122, 25, 255), start_pos=(gx2, gy2), end_pos=(gx3, gy3), width=5)
+
+            pygame.time.delay(10)
+            pygame.display.update()
+        pygame.display.update()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN:
+                    screen.fill((255, 255, 255))
+                    return
+
+                if event.type == QUIT:
+                    return
+
     def check_route(self):
         """
         計15回分の軌跡を表示できるmethodです。publicにしてあります。
@@ -509,20 +509,6 @@ class Analyzer:
         screen = self.__show_route_initialize()
         for i in range(15):
             self.__show_route(i, screen)
-
-    def __data_cleansing(self, df):
-        pd.set_option('display.max_rows', 500)
-        # print(df)
-        # print("outliers:", self.__outliers)
-        df = df.drop(self.__outliers)
-        df = df.dropna(how="any")
-        df = df[df.gaze_MV > 0]
-        df = df[df.x_corr > 0]
-        df = df[df.y_corr > 0]
-        # print("|\n|\n//")
-        # print(df)
-        # print("--------------")
-        return df
 
     def getDataFrame(self):
         """
@@ -612,8 +598,8 @@ class ExecuteAnalysis:
 
 if __name__ == "__main__":
     t = ExecuteAnalysis()
-    t.test(subject="Nishigaichi", param="mouse")
-    args = t.get_params()
+    t.test(subject="Nishigaichi", param="linear_10")
+    # args = t.get_params()
 
     # with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executer:
         # executer.map(t.test_wrapper, args)
