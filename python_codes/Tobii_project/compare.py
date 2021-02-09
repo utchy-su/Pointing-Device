@@ -6,24 +6,11 @@ import matplotlib.pyplot as plt
 class Compare:
 
     def __init__(self, subject):
-        self.lin10 = pd.read_excel(".\\data\\" + subject + "\\linear_10\\summary.xlsx")
-        # self.lin20 = pd.read_excel("./Nishigaichi/Linear/gain_20/summary.xlsx")
-        self.lin20 = None
+        self.linear = pd.read_excel("./data_with_questionaire/{}/linear/summary.xlsx".format(subject))
+        self.sqrt = pd.read_excel("./data_with_questionaire/{}/sqrt/summary.xlsx".format(subject))
+        self.quad = pd.read_excel("./data_with_questionaire/{}/quad/summary.xlsx".format(subject))
 
-        self.sqrt10 = pd.read_excel(".\\data\\" + subject + "\\sqrt_10\\summary.xlsx")
-        # self.sqrt20 = pd.read_excel("./Nishigaichi/sqrt/gain_20/summary.xlsx")
-        self.sqrt20 = None
-
-        # self.quad10 = pd.read_excel(".\\data\\" + subject + "\\quad_10\\summary.xlsx")
-        self.quad10 = None
-        # self.quad20 = pd.read_excel("./Nishigaichi/quad/gain_20/summary.xlsx")
-        self.quad20 = None
-
-        self.mouse = pd.read_excel(".\\data\\" + subject + "\\mouse\\summary.xlsx")
-
-        self.data = {"linear":[self.lin10, self.lin20],
-                    "sqrt": [self.sqrt10, self.sqrt20],
-                    "quad": [self.quad10, self.quad20]}
+        self.data = [self.linear, self.sqrt, self.quad]
 
     def compare_performances(self, param):
         if not isinstance(param, str):
@@ -32,49 +19,20 @@ class Compare:
         # plt.plot(np.arange(0, len(self.lin10[param]), 1), self.lin10[param], 'o')
         # plt.plot(np.arange(0, len(self.lin20[param]), 1), self.lin20[param], 'o')
 
-        lin10_mean = self.lin10[param].mean()
-        lin20_mean = 0  # self.lin20[param].mean()
+        lin_mean = self.linear[param].mean()
+        sqrt_mean = self.sqrt[param].mean()
+        quad_mean = self.quad[param].mean()
 
-        sqrt10_mean = self.sqrt10[param].mean()
-        sqrt20_mean = 0  # self.sqrt20[param].mean()
+        lin_std = self.linear[param].std()
+        sqrt_std = self.sqrt[param].std()
+        quad_std = self.quad[param].std()
 
-        quad10_mean = 0  # self.quad10[param].mean()
-        quad20_mean = 0  # self.quad20[param].mean()
-
-        lin10_std = self.lin10[param].std()
-        lin20_std = 0  # self.lin20[param].std()
-
-        sqrt10_std = self.sqrt10[param].std()
-        sqrt20_std = 0  # self.sqrt20[param].std()
-
-        quad10_std = 0  # self.quad10[param].std()
-        quad20_std = 0  # self.quad20[param].std()
-
-        mouse_mean = self.mouse[param].mean()
-        mouse_std = self.mouse[param].std()
-
-        x1 = [1, 2, 3]
-        x2 = [1.3, 2.3, 3.3]
-
-        gain10_result = (lin10_mean, sqrt10_mean, quad10_mean)
-        gain10_err = (lin10_std, sqrt10_std, quad10_std)
-        gain20_result = (lin20_mean, sqrt20_mean, quad20_mean)
-        gain20_err = (lin20_std, sqrt20_std, quad20_std)
-
-        plt.bar(x1, gain10_result, width=0.3, label="gain = 10", align="center")
-        plt.errorbar(x1, gain10_result, yerr=gain10_err, ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
-
-        plt.bar(x2, gain20_result, width=0.3, label="gain = 20", align="center")
-        plt.errorbar(x2, gain20_result, yerr=gain20_err, ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
-
-        plt.bar([4], [mouse_mean], width=0.3, align="center")
-        plt.errorbar([4], [mouse_mean], yerr=[mouse_std], ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5 ,ls="none")
-
-        plt.xticks([1.15, 2.15, 3.15, 4], ["linear", "sqrt", "quadratic", "mouse"])
-
-        plt.title(param + ": by each criterion")
+        x = [1, 2, 3]
+        plt.xticks(x, ["linear", "sqrt", "quad"])
         plt.legend()
-        plt.tight_layout()
+        plt.bar(x, [lin_mean, sqrt_mean, quad_mean])
+        plt.errorbar(x, [lin_mean, sqrt_mean, quad_mean], yerr=[lin_std, sqrt_std, quad_std], ecolor="black", capsize=3, capthick=0.5, elinewidth=0.5, ls="none")
+
         plt.show()
 
     def compare_angles(self, mode="linear", gain=10):
@@ -131,17 +89,8 @@ class Compare:
 
 
 if __name__ == "__main__":
-    test = Compare("Iwata")
-    type = None
-    while type != -1:
-        type = int(input("0:performance comparison, 1:trend, 2:angles 3:quit  -->"))
-        if type == 0:
-            param = input("param?: ")
-            test.compare_performances(param)
-        elif type == 1:
-            param = input("param?: ")
-            test.show_familiality_trend(param)
-        elif type == 2:
-            param = input("param?: ")
-            gain = input("gain?: ")
-            test.compare_angles(param, int(gain))
+    subject = input("subject?: ")
+    param = input("param?: ")
+
+    test = Compare(subject)
+    test.compare_performances(param)
